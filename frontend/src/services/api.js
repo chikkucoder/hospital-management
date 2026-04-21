@@ -1,8 +1,15 @@
-export async function apiRequest(path, options = {}) {
-  const response = await fetch(path, options);
-  if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || "Request failed");
-  }
-  return response.json();
-}
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:5000/api",
+  withCredentials: true
+});
+
+// Optional: attach token if using auth
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export default api;

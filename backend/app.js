@@ -16,6 +16,9 @@ app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/billing", billingRoutes);
 
+app.use("/api/bills", require("./routes/billingRoutes"));
+app.use("/api/payments", require("./routes/paymentRoutes"));
+
 app.use(errorMiddleware);
 
 module.exports = app;
