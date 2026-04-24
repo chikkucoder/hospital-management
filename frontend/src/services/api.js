@@ -1,15 +1,18 @@
-import axios from "axios";
+const API_BASE = "/api";
 
-const api = axios.create({
-  baseURL: "http://localhost:5000/api",
-  withCredentials: true
-});
+export const apiRequest = async (endpoint, options = {}) => {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
 
-// Optional: attach token if using auth
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || "Request failed");
+  }
 
-export default api;
+  return response.json();
+};

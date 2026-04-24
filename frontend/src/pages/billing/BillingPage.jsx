@@ -1,980 +1,252 @@
-import React, { useMemo, useRef, useState } from "react";
-import "./BillingPage.css";
+import { useEffect, useMemo, useState } from "react";
 import {
-  PATIENTS,
-  APPOINTMENTS,
-  SERVICE_CATALOG,
-  TAX_RATE,
-  DEFAULT_DISCOUNT,
-  HOSPITAL_INFO,
-  SAVED_BILLS,
-  generateInvoiceNumber,
-} from "../../data/bill";
+  ReceiptIndianRupee, Plus, Trash2, CreditCard, Banknote,
+  FileText, Search, ArrowRight, Loader2,
+} from "lucide-react";
+import { cn } from "../../lib/utils";
+import { money, fmtDate, capitalize } from "../../lib/format";
+import { api } from "../../lib/api";
+import { PATIENTS, TAX_RATE, HOSPITAL_INFO } from "../../data/bill";
+import { toast } from "sonner";
 
-const money = (n) =>
-  `₹${Number(n || 0).toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-
-const fmtDate = (value) => {
-  if (!value) return "—";
-  const d = new Date(value);
-  return d.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
-
-const fmtDateTime = (value) => {
-  if (!value) return "—";
-  const d = new Date(value);
-  return `${fmtDate(d)} ${d.toLocaleTimeString("en-IN", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })}`;
-};
-
-const capitalize = (v) =>
-  String(v || "")
-    .toLowerCase()
-    .replace(/\b\w/g, (m) => m.toUpperCase());
-
-const statusColor = (status) => {
-  switch (status) {
-    case "paid":
-      return "#16a34a";
-    case "pending":
-      return "#d97706";
-    case "partial":
-      return "#2563eb";
-    case "draft":
-      return "#64748b";
-    default:
-      return "#64748b";
-  }
-};
-
-const TYPE_COLOR = {
-  CONSULTATION: "#2563eb",
-  LAB: "#0f766e",
-  MEDICINE: "#dc2626",
-  PROCEDURE: "#7c3aed",
-  ROOM: "#b45309",
-  NURSING: "#0891b2",
-  EQUIPMENT: "#15803d",
-  OTHER: "#475569",
-};
-
-const SIDEBAR_ITEMS = [
-  { id: "patient", label: "Patient Info", icon: "👤" },
-  { id: "visit", label: "Visit / Admission", icon: "🏥" },
-  { id: "charges", label: "Charges", icon: "🧾" },
-  { id: "insurance", label: "Insurance", icon: "🛡️" },
-  { id: "payment", label: "Payment", icon: "💳" },
-  { id: "summary", label: "Summary", icon: "🧮" },
-  { id: "preview", label: "Preview", icon: "📷" },
-  { id: "saved", label: "Saved Bills", icon: "📋" },
-];
-
-function SectionTitle({ icon, title }) {
-  return (
-    <div className="section-title">
-      <span className="section-title__icon">{icon}</span>
-      <span>{title}</span>
-    </div>
-  );
-}
-
-function FieldLabel({ children }) {
-  return <div className="field-label">{children}</div>;
-}
-
-function SummaryRow({ label, value }) {
-  return (
-    <div className="summary-row">
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-function InvoicePreview({ bill, patient, appointment, onClose, onPrint }) {
-  return (
-    <div className="invoice-overlay no-print">
-      <div className="invoice-modal">
-        <div className="invoice-toolbar no-print">
-          <div>
-            <div className="invoice-toolbar__title">Invoice Preview</div>
-            <div className="invoice-toolbar__sub">Print or save as PDF</div>
-          </div>
-          <div className="invoice-toolbar__actions">
-            <button className="btn btn-dark" onClick={onPrint}>
-              Print / Save PDF
-            </button>
-            <button className="btn btn-light" onClick={onClose}>
-              Close
-            </button>
-          </div>
-        </div>
-
-        <div id="invoice-print" className="invoice-sheet">
-          <div className="invoice-header">
-            <div className="invoice-brand">
-              <div className="invoice-brand__logo">
-                {HOSPITAL_INFO.logo || "🏥"}
-              </div>
-              <div>
-                <div className="invoice-brand__name">{HOSPITAL_INFO.name}</div>
-                <div className="invoice-brand__tag">{HOSPITAL_INFO.tagline}</div>
-                <div className="invoice-brand__info">
-                  {HOSPITAL_INFO.address}
-                  <br />
-                  {HOSPITAL_INFO.phone} | {HOSPITAL_INFO.email}
-                  <br />
-                  GST: {HOSPITAL_INFO.gst}
-                </div>
-              </div>
-            </div>
-
-            <div className="invoice-meta">
-              <div
-                className="status-pill"
-                style={{
-                  background: `${statusColor(bill.status)}14`,
-                  color: statusColor(bill.status),
-                  borderColor: `${statusColor(bill.status)}30`,
-                }}
-              >
-                {capitalize(bill.status)}
-              </div>
-              <div className="invoice-number">{bill.invoiceNumber}</div>
-              <div className="invoice-meta__line">
-                Statement Date: {fmtDate(bill.issuedAt)}
-              </div>
-              <div className="invoice-meta__line">
-                Due Date: {bill.dueDate ? fmtDate(bill.dueDate) : "Upon Receipt"}
-              </div>
-            </div>
-          </div>
-
-          <div className="invoice-divider" />
-
-          <div className="invoice-summary-grid">
-            <div className="info-card">
-              <div className="info-card__label">Patient Details</div>
-              <div className="info-card__title">{patient?.name || "Unknown"}</div>
-              <div className="info-card__text">
-                UHID: {patient?._id || "—"} <br />
-                Age / Gender: {patient?.age ?? "—"} / {patient?.gender || "—"} <br />
-                Phone: {patient?.phone || "—"} <br />
-                Email: {patient?.email || "—"} <br />
-                Address: {patient?.address || "—"}
-              </div>
-            </div>
-
-            <div className="info-card">
-              <div className="info-card__label">Visit / Admission</div>
-              <div className="info-card__title">
-                {appointment?.doctorName || "Walk-in / No Appointment"}
-              </div>
-              <div className="info-card__text">
-                Department: {appointment?.speciality || "General"} <br />
-                Visit Type: {bill.visitType || "OPD"} <br />
-                Visit Date: {appointment?.date || fmtDate(bill.issuedAt)} <br />
-                Time: {appointment?.time || "—"} <br />
-                Room / Bed: {bill.roomNumber || "—"}
-              </div>
-            </div>
-
-            <div className="info-card">
-              <div className="info-card__label">Insurance / Billing</div>
-              <div className="info-card__title">
-                {bill.insuranceProvider || "Self Pay / No Insurance"}
-              </div>
-              <div className="info-card__text">
-                Policy No: {bill.policyNumber || "—"} <br />
-                Coverage: {bill.coveragePercent ?? 0}% <br />
-                Insurance Deduction: {money(bill.insuranceDeduction || 0)} <br />
-                Payment Method: {bill.paymentMethod || "—"}
-              </div>
-            </div>
-          </div>
-
-          <div className="invoice-section-heading">Itemized Charges</div>
-
-          <table className="invoice-table">
-            <thead>
-              <tr>
-                <th>Date of Service</th>
-                <th>Description</th>
-                <th>Charges</th>
-                <th>Payment / Adjustments</th>
-                <th>Patient Balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(bill.items || []).map((item, idx) => (
-                <tr key={`${item.name}-${idx}`} className={idx % 2 ? "alt" : ""}>
-                  <td>{fmtDate(item.date || bill.issuedAt)}</td>
-                  <td>
-                    <div className="invoice-item-name">{item.name}</div>
-                    <div className="invoice-item-sub">
-                      {item.type} · Qty: {item.quantity}
-                    </div>
-                  </td>
-                  <td className="right">{money(item.amount)}</td>
-                  <td className="right">
-                    {item.adjustment ? `- ${money(item.adjustment)}` : "—"}
-                  </td>
-                  <td className="right">{money(item.amount)}</td>
-                </tr>
-              ))}
-
-              <tr className="totals-row">
-                <td colSpan="2" className="label-cell">
-                  Total Hospital Charges
-                </td>
-                <td className="right value-cell">{money(bill.subtotal)}</td>
-                <td className="right value-cell">—</td>
-                <td className="right value-cell">{money(bill.subtotal)}</td>
-              </tr>
-
-              <tr className="sub-row">
-                <td colSpan="2" className="label-cell">
-                  Tax / GST
-                </td>
-                <td className="right">{money(bill.tax)}</td>
-                <td className="right">—</td>
-                <td className="right">{money(bill.tax)}</td>
-              </tr>
-
-              <tr className="sub-row">
-                <td colSpan="2" className="label-cell">
-                  Discount
-                </td>
-                <td className="right">- {money(bill.discount)}</td>
-                <td className="right">—</td>
-                <td className="right">- {money(bill.discount)}</td>
-              </tr>
-
-              <tr className="sub-row">
-                <td colSpan="2" className="label-cell">
-                  Insurance Deduction
-                </td>
-                <td className="right">- {money(bill.insuranceDeduction || 0)}</td>
-                <td className="right">—</td>
-                <td className="right">- {money(bill.insuranceDeduction || 0)}</td>
-              </tr>
-
-              <tr className="grand-total-row">
-                <td colSpan="2" className="grand-label">
-                  Patient Due
-                </td>
-                <td className="right grand-value">{money(bill.totalAmount)}</td>
-                <td className="right grand-value">—</td>
-                <td className="right grand-value">
-                  {money(bill.paymentSummary?.dueAmount ?? bill.totalAmount)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div className="invoice-footer-grid">
-            <div className="footer-box">
-              <div className="footer-box__title">Messages</div>
-              <p>
-                We have filed the medical claims with your insurance, if applicable.
-                The balance shown above is your responsibility unless covered by the provider.
-              </p>
-              <p>
-                For billing questions or payment arrangements, contact the billing desk at {HOSPITAL_INFO.phone}.
-              </p>
-            </div>
-
-            <div className="footer-box">
-              <div className="footer-box__title">Payment Summary</div>
-              <div className="pay-line">
-                <span>Total</span>
-                <strong>{money(bill.totalAmount)}</strong>
-              </div>
-              <div className="pay-line">
-                <span>Paid Amount</span>
-                <strong>{money(bill.paymentSummary?.paidAmount ?? 0)}</strong>
-              </div>
-              <div className="pay-line">
-                <span>Due Amount</span>
-                <strong>{money(bill.paymentSummary?.dueAmount ?? bill.totalAmount)}</strong>
-              </div>
-              <div className="pay-line">
-                <span>Status</span>
-                <strong>{capitalize(bill.status)}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div className="signature-grid">
-            <div>
-              <div className="signature-line" />
-              <div className="signature-label">Authorized Signature</div>
-            </div>
-            <div className="right-align">
-              <div className="signature-line" />
-              <div className="signature-label">Hospital Stamp</div>
-            </div>
-          </div>
-
-          <div className="invoice-note">
-            Thank you for choosing {HOSPITAL_INFO.name}. This is a computer-generated statement.
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function BillingPage() {
-  const [tab, setTab] = useState("create");
-  const [activeSection, setActiveSection] = useState("patient");
-  const [bills, setBills] = useState(SAVED_BILLS);
-  const sectionRefs = {
-    patient: useRef(null),
-    visit: useRef(null),
-    charges: useRef(null),
-    insurance: useRef(null),
-    payment: useRef(null),
-    summary: useRef(null),
-    preview: useRef(null),
-    saved: useRef(null),
-  };
-
-  const [selectedPatient, setSelectedPatient] = useState("");
-  const [selectedAppt, setSelectedAppt] = useState("");
-  const [items, setItems] = useState([]);
-  const [serviceSearch, setServiceSearch] = useState("");
-  const [discount, setDiscount] = useState(DEFAULT_DISCOUNT);
+export default function Billing() {
+  const [items, setItems] = useState([
+    { id: 1, name: "General Consultation", qty: 1, price: 500 },
+    { id: 2, name: "Complete Blood Count (CBC)", qty: 1, price: 350 },
+  ]);
+  const [patients, setPatients] = useState(PATIENTS);
+  const [selectedPatient, setSelectedPatient] = useState(PATIENTS[0]._id);
+  const [billDate, setBillDate] = useState(new Date().toISOString().slice(0, 10));
   const [paymentMethod, setPaymentMethod] = useState("Cash");
-  const [billStatus, setBillStatus] = useState("pending");
-  const [visitType, setVisitType] = useState("OPD");
-  const [roomNumber, setRoomNumber] = useState("");
-  const [insuranceProvider, setInsuranceProvider] = useState("");
-  const [policyNumber, setPolicyNumber] = useState("");
-  const [coveragePercent, setCoveragePercent] = useState(0);
-  const [dueDate, setDueDate] = useState("");
-  const [viewBill, setViewBill] = useState(null);
-  const [toast, setToast] = useState(null);
+  const [recent, setRecent] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [backendUp, setBackendUp] = useState(null);
 
-  const selectedPatientObj = useMemo(
-    () => PATIENTS.find((p) => p._id === selectedPatient) || null,
-    [selectedPatient]
-  );
+  useEffect(() => {
+    (async () => {
+      try {
+        const [p, b] = await Promise.all([api.listPatients(), api.listBills()]);
+        if (Array.isArray(p) && p.length) {
+          setPatients(p);
+          setSelectedPatient(p[0]._id);
+        }
+        setRecent((b || []).slice(0, 5));
+        setBackendUp(true);
+      } catch {
+        setBackendUp(false);
+      }
+    })();
+  }, []);
 
-  const patientAppointments = useMemo(
-    () => APPOINTMENTS.filter((a) => a.patientId === selectedPatient),
-    [selectedPatient]
-  );
+  const subtotal = useMemo(() => items.reduce((a, i) => a + i.qty * i.price, 0), [items]);
+  const tax = +(subtotal * TAX_RATE).toFixed(2);
+  const discount = 0;
+  const total = +(subtotal + tax - discount).toFixed(2);
 
-  const selectedApptObj = useMemo(
-    () => APPOINTMENTS.find((a) => a._id === selectedAppt) || null,
-    [selectedAppt]
-  );
+  const addItem = () => setItems([...items, { id: Date.now(), name: "", qty: 1, price: 0 }]);
+  const removeItem = (id) => setItems(items.filter((i) => i.id !== id));
+  const updateItem = (id, key, val) =>
+    setItems(items.map((i) => (i.id === id ? { ...i, [key]: key === "name" ? val : Number(val) } : i)));
 
-  const filteredServices = useMemo(() => {
-    const q = serviceSearch.trim().toLowerCase();
-    if (!q) return SERVICE_CATALOG;
-    return SERVICE_CATALOG.filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) || s.type.toLowerCase().includes(q)
-    );
-  }, [serviceSearch]);
-
-  const subtotal = useMemo(
-    () => items.reduce((sum, item) => sum + Number(item.amount || 0), 0),
-    [items]
-  );
-
-  const tax = useMemo(() => +(subtotal * TAX_RATE).toFixed(2), [subtotal]);
-  const discountAmount = Number(discount || 0);
-
-  const insuranceDeduction = useMemo(() => {
-    const base = subtotal + tax - discountAmount;
-    const raw = (base * Number(coveragePercent || 0)) / 100;
-    return +Math.max(0, raw).toFixed(2);
-  }, [subtotal, tax, discountAmount, coveragePercent]);
-
-  const totalAmount = useMemo(() => {
-    const total = subtotal + tax - discountAmount - insuranceDeduction;
-    return +Math.max(0, total).toFixed(2);
-  }, [subtotal, tax, discountAmount, insuranceDeduction]);
-
-  const paidAmount = useMemo(() => {
-    if (billStatus === "paid") return totalAmount;
-    if (billStatus === "partial") return +(totalAmount * 0.5).toFixed(2);
-    return 0;
-  }, [billStatus, totalAmount]);
-
-  const dueAmount = useMemo(
-    () => +Math.max(0, totalAmount - paidAmount).toFixed(2),
-    [totalAmount, paidAmount]
-  );
-
-  const showToast = (msg, type = "success") => {
-    setToast({ msg, type });
-    window.clearTimeout(window.__billingToastTimer);
-    window.__billingToastTimer = window.setTimeout(() => setToast(null), 2600);
-  };
-
-  const goToSection = (id) => {
-    setActiveSection(id);
-    const ref = sectionRefs[id]?.current;
-    if (ref) {
-      ref.scrollIntoView({ behavior: "smooth", block: "start" });
+  const finalize = async () => {
+    if (!items.length) return toast.error("Add at least one item");
+    setSaving(true);
+    const payload = {
+      patient: selectedPatient,
+      issuedAt: billDate,
+      items: items.map((i) => ({
+        type: "OTHER",
+        name: i.name || "Service",
+        quantity: i.qty,
+        unitPrice: i.price,
+        amount: i.qty * i.price,
+      })),
+      subtotal, tax, discount,
+      totalAmount: total,
+      paymentMethod,
+      status: paymentMethod === "Cash" ? "paid" : "pending",
+      visitType: "OPD",
+    };
+    try {
+      const created = await api.createBill(payload);
+      toast.success(`Saved ${created.invoiceNumber || "invoice"}`);
+      const b = await api.listBills();
+      setRecent(b.slice(0, 5));
+    } catch (e) {
+      toast.error("Backend unreachable or unauthorized — bill not persisted.");
+    } finally {
+      setSaving(false);
     }
   };
 
-  const addService = (svc) => {
-    setItems((prev) => {
-      const existingIndex = prev.findIndex(
-        (x) => x.name === svc.name && x.type === svc.type
-      );
-      if (existingIndex !== -1) {
-        return prev.map((x, idx) =>
-          idx === existingIndex
-            ? {
-                ...x,
-                quantity: x.quantity + 1,
-                amount: (x.quantity + 1) * x.unitPrice,
-              }
-            : x
-        );
-      }
-      return [
-        ...prev,
-        {
-          type: svc.type,
-          name: svc.name,
-          quantity: 1,
-          unitPrice: svc.unitPrice,
-          amount: svc.unitPrice,
-          date: new Date().toISOString(),
-        },
-      ];
-    });
-  };
-
-  const updateQty = (index, qty) => {
-    if (qty < 1) return removeItem(index);
-    setItems((prev) =>
-      prev.map((item, idx) =>
-        idx === index ? { ...item, quantity: qty, amount: qty * item.unitPrice } : item
-      )
-    );
-  };
-
-  const removeItem = (index) => {
-    setItems((prev) => prev.filter((_, idx) => idx !== index));
-  };
-
-  const resetForm = () => {
-    setSelectedPatient("");
-    setSelectedAppt("");
-    setItems([]);
-    setServiceSearch("");
-    setDiscount(DEFAULT_DISCOUNT);
-    setPaymentMethod("Cash");
-    setBillStatus("pending");
-    setVisitType("OPD");
-    setRoomNumber("");
-    setInsuranceProvider("");
-    setPolicyNumber("");
-    setCoveragePercent(0);
-    setDueDate("");
-  };
-
-  const saveBill = () => {
-    if (!selectedPatient) return showToast("Select a patient first.", "error");
-    if (!items.length) return showToast("Add at least one item.", "error");
-
-    const newBill = {
-      _id: `b-${Date.now()}`,
-      invoiceNumber: generateInvoiceNumber(bills.length),
-      patient: selectedPatient,
-      appointment: selectedAppt || null,
-      items,
-      subtotal,
-      tax,
-      discount: discountAmount,
-      insuranceProvider,
-      policyNumber,
-      coveragePercent: Number(coveragePercent || 0),
-      insuranceDeduction,
-      totalAmount,
-      status: billStatus,
-      paymentSummary: {
-        paidAmount,
-        dueAmount,
-      },
-      paymentMethod,
-      visitType,
-      roomNumber,
-      dueDate: dueDate || null,
-      createdBy: "admin",
-      issuedAt: new Date().toISOString(),
-      paidAt: billStatus === "paid" ? new Date().toISOString() : null,
-    };
-
-    setBills((prev) => [newBill, ...prev]);
-    setViewBill(newBill);
-    resetForm();
-    showToast(`Saved ${newBill.invoiceNumber}`);
-  };
-
-  const getPatient = (id) => PATIENTS.find((p) => p._id === id) || null;
-  const getAppointment = (id) => APPOINTMENTS.find((a) => a._id === id) || null;
-
-  const handlePrint = () => window.print();
+  const patient = patients.find((p) => p._id === selectedPatient);
 
   return (
-    <div className="billing-page">
-      {toast && (
-        <div className={`toast ${toast.type === "error" ? "toast--error" : "toast--success"}`}>
-          {toast.msg}
-        </div>
-      )}
-
-      {viewBill && (
-        <InvoicePreview
-          bill={viewBill}
-          patient={getPatient(viewBill.patient)}
-          appointment={getAppointment(viewBill.appointment)}
-          onClose={() => setViewBill(null)}
-          onPrint={handlePrint}
-        />
-      )}
-
-      <div className="topbar">
-        <div>
-          <div className="topbar__title">Invoices</div>
-          <div className="topbar__sub">
-            {HOSPITAL_INFO.name} · {fmtDate(new Date())}
+    <div className="flex flex-col xl:flex-row gap-10 min-h-[80vh]">
+      <div className="flex-1 space-y-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-brand tracking-tighter italic">Billing & Invoices</h1>
+            <p className="text-muted-foreground font-medium">Create and manage patient clinical bills.</p>
           </div>
+          {backendUp === false && (
+            <div className="text-[10px] font-black uppercase tracking-widest px-3 py-2 rounded-lg bg-orange-50 text-orange-600 border border-orange-200">
+              Backend offline · using seed data
+            </div>
+          )}
         </div>
 
-        <div className="topbar__actions">
-          <button
-            className={tab === "create" ? "tab-btn active" : "tab-btn"}
-            onClick={() => setTab("create")}
-          >
-            New Invoice
-          </button>
-          <button
-            className={tab === "list" ? "tab-btn active" : "tab-btn"}
-            onClick={() => setTab("list")}
-          >
-            Saved Bills ({bills.length})
-          </button>
+        <div className="bg-surface p-10 rounded-[3.5rem] border border-border/60 shadow-sm space-y-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Patient</label>
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/40" />
+                <select
+                  value={selectedPatient}
+                  onChange={(e) => setSelectedPatient(e.target.value)}
+                  className="w-full h-14 pl-12 pr-6 bg-surface-muted border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 transition-all font-bold text-sm appearance-none"
+                >
+                  {patients.map((p) => (
+                    <option key={p._id} value={p._id}>{p.name} ({p._id})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">Bill Date</label>
+              <input
+                type="date"
+                value={billDate}
+                onChange={(e) => setBillDate(e.target.value)}
+                className="w-full h-14 px-6 bg-surface-muted border-none rounded-2xl outline-none focus:ring-4 focus:ring-brand/10 transition-all font-bold text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-bold text-brand tracking-tight">Bill Items</h2>
+              <button onClick={addItem} className="flex items-center gap-2 text-xs font-black text-brand-accent hover:text-brand transition-colors">
+                <Plus className="w-4 h-4" /> ADD SERVICE/MEDICINE
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="border-b border-border/40">
+                  <tr>
+                    <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">Description</th>
+                    <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 w-24">Qty</th>
+                    <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 w-32">Price</th>
+                    <th className="pb-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 w-32 text-right">Amount</th>
+                    <th className="pb-4 w-12" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/40">
+                  {items.map((item) => (
+                    <tr key={item.id} className="group">
+                      <td className="py-5 pr-4">
+                        <input value={item.name} onChange={(e) => updateItem(item.id, "name", e.target.value)} className="w-full bg-transparent border-none font-bold text-foreground outline-none" placeholder="Service name…" />
+                      </td>
+                      <td className="py-5 pr-4">
+                        <input type="number" min={1} value={item.qty} onChange={(e) => updateItem(item.id, "qty", e.target.value)} className="w-full bg-transparent border-none font-bold text-foreground outline-none" />
+                      </td>
+                      <td className="py-5 pr-4">
+                        <input type="number" min={0} value={item.price} onChange={(e) => updateItem(item.id, "price", e.target.value)} className="w-full bg-transparent border-none font-bold text-foreground outline-none" />
+                      </td>
+                      <td className="py-5 font-bold text-foreground text-right">{money(item.qty * item.price)}</td>
+                      <td className="py-5 text-right pl-4">
+                        <button onClick={() => removeItem(item.id)} className="p-2 text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 rounded-lg transition-all">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      {tab === "create" && (
-        <div className="billing-layout">
-          <aside className="sidebar">
-            <div className="sidebar__title">Bill Management</div>
-            <div className="sidebar__subtitle">Fill section by section</div>
-
-            <div className="sidebar__menu">
-              {SIDEBAR_ITEMS.map((item) => (
-                <button
-                  key={item.id}
-                  className={activeSection === item.id ? "sidebar-item active" : "sidebar-item"}
-                  onClick={() => goToSection(item.id)}
-                >
-                  <span className="sidebar-item__icon">{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
+      <aside className="xl:w-[450px] flex-shrink-0 flex flex-col gap-8">
+        <div className="bg-brand p-10 rounded-[3.5rem] text-brand-foreground shadow-2xl shadow-brand/20 space-y-10">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white/10 rounded-[2rem] flex items-center justify-center backdrop-blur-xl border border-white/10">
+              <ReceiptIndianRupee className="w-8 h-8 text-emerald-300" />
             </div>
-          </aside>
+            <h2 className="text-2xl font-bold tracking-tighter">Bill Summary</h2>
+          </div>
 
-          <main className="content-area">
-            <div ref={sectionRefs.patient} className="card section-block">
-              <SectionTitle icon="👤" title="Patient Information" />
-              <div className="grid-2">
-                <div>
-                  <FieldLabel>Patient *</FieldLabel>
-                  <select
-                    value={selectedPatient}
-                    onChange={(e) => {
-                      setSelectedPatient(e.target.value);
-                      setSelectedAppt("");
-                    }}
-                    className="input"
-                  >
-                    <option value="">Select patient</option>
-                    {PATIENTS.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.name} · {p.age}y · {p.gender}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <FieldLabel>Patient Preview</FieldLabel>
-                  <input
-                    className="input"
-                    value={
-                      selectedPatientObj
-                        ? `${selectedPatientObj.name} | ${selectedPatientObj.phone}`
-                        : ""
-                    }
-                    disabled
-                    placeholder="Selected patient details will show here"
-                  />
-                </div>
-              </div>
-
-              {selectedPatientObj && (
-                <div className="info-strip">
-                  <span>UHID: {selectedPatientObj._id}</span>
-                  <span>Email: {selectedPatientObj.email}</span>
-                  <span>
-                    {selectedPatientObj.gender} · {selectedPatientObj.age}y
-                  </span>
-                </div>
-              )}
+          {patient && (
+            <div className="text-xs font-bold text-emerald-100/70">
+              {patient.name} · {patient._id}
             </div>
+          )}
 
-            <div ref={sectionRefs.visit} className="card section-block">
-              <SectionTitle icon="🏥" title="Visit / Admission Details" />
-              <div className="grid-2">
-                <div>
-                  <FieldLabel>Visit Type</FieldLabel>
-                  <select
-                    value={visitType}
-                    onChange={(e) => setVisitType(e.target.value)}
-                    className="input"
-                  >
-                    <option value="OPD">OPD</option>
-                    <option value="IPD">IPD</option>
-                    <option value="Emergency">Emergency</option>
-                    <option value="Follow-up">Follow-up</option>
-                  </select>
-                </div>
-
-                <div>
-                  <FieldLabel>Room / Bed</FieldLabel>
-                  <input
-                    value={roomNumber}
-                    onChange={(e) => setRoomNumber(e.target.value)}
-                    placeholder="Room 203 / Bed 7"
-                    className="input"
-                  />
-                </div>
-
-                <div>
-                  <FieldLabel>Appointment</FieldLabel>
-                  <select
-                    value={selectedAppt}
-                    onChange={(e) => setSelectedAppt(e.target.value)}
-                    disabled={!selectedPatient}
-                    className="input"
-                  >
-                    <option value="">Walk-in / No appointment</option>
-                    {patientAppointments.map((a) => (
-                      <option key={a._id} value={a._id}>
-                        {a.doctorName} · {a.speciality} · {a.date}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <FieldLabel>Selected Doctor</FieldLabel>
-                  <input
-                    className="input"
-                    value={
-                      selectedApptObj
-                        ? `${selectedApptObj.doctorName} | ${selectedApptObj.speciality}`
-                        : ""
-                    }
-                    disabled
-                    placeholder="Doctor details will show here"
-                  />
-                </div>
-              </div>
+          <div className="space-y-6 pt-2">
+            <div className="flex justify-between items-center">
+              <span className="text-emerald-100/60 font-bold uppercase tracking-widest text-[10px]">Subtotal</span>
+              <span className="font-bold">{money(subtotal)}</span>
             </div>
-
-            <div ref={sectionRefs.charges} className="card section-block">
-              <SectionTitle icon="🧾" title="Charges" />
-              <div className="mt-14">
-                <input
-                  value={serviceSearch}
-                  onChange={(e) => setServiceSearch(e.target.value)}
-                  placeholder="Search consultation, lab, medicine..."
-                  className="input"
-                />
-              </div>
-
-              <div className="service-grid">
-                {filteredServices.map((svc) => (
-                  <button
-                    key={svc.id}
-                    onClick={() => addService(svc)}
-                    className="service-card"
-                    style={{
-                      borderColor: `${TYPE_COLOR[svc.type] || TYPE_COLOR.OTHER}33`,
-                      background: `${TYPE_COLOR[svc.type] || TYPE_COLOR.OTHER}08`,
-                    }}
-                  >
-                    <div
-                      className="service-card__type"
-                      style={{ color: TYPE_COLOR[svc.type] || TYPE_COLOR.OTHER }}
-                    >
-                      {svc.type}
-                    </div>
-                    <div className="service-card__name">{svc.name}</div>
-                    <div className="service-card__price">{money(svc.unitPrice)}</div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="items-box">
-                <div className="items-box__title">Bill Items ({items.length})</div>
-                {items.length === 0 ? (
-                  <div className="empty-state">No items added yet. Click a service above.</div>
-                ) : (
-                  <div className="table-wrap">
-                    <table className="small-table">
-                      <thead>
-                        <tr>
-                          <th>Type</th>
-                          <th>Item</th>
-                          <th>Qty</th>
-                          <th>Unit Price</th>
-                          <th>Amount</th>
-                          <th />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.map((item, i) => (
-                          <tr key={`${item.name}-${i}`}>
-                            <td>
-                              <span
-                                className="badge"
-                                style={{
-                                  background: `${TYPE_COLOR[item.type] || TYPE_COLOR.OTHER}18`,
-                                  color: TYPE_COLOR[item.type] || TYPE_COLOR.OTHER,
-                                }}
-                              >
-                                {item.type}
-                              </span>
-                            </td>
-                            <td className="fw-600">{item.name}</td>
-                            <td>
-                              <div className="qty">
-                                <button onClick={() => updateQty(i, item.quantity - 1)} className="qty-btn">
-                                  −
-                                </button>
-                                <span>{item.quantity}</span>
-                                <button onClick={() => updateQty(i, item.quantity + 1)} className="qty-btn">
-                                  +
-                                </button>
-                              </div>
-                            </td>
-                            <td>{money(item.unitPrice)}</td>
-                            <td className="fw-700">{money(item.amount)}</td>
-                            <td>
-                              <button onClick={() => removeItem(i)} className="delete-btn">
-                                Remove
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
+            <div className="flex justify-between items-center">
+              <span className="text-emerald-100/60 font-bold uppercase tracking-widest text-[10px]">GST (5%)</span>
+              <span className="font-bold">{money(tax)}</span>
             </div>
-
-            <div ref={sectionRefs.insurance} className="card section-block">
-              <SectionTitle icon="🛡️" title="Insurance Details" />
-              <div className="grid-2">
-                <div>
-                  <FieldLabel>Insurance Provider</FieldLabel>
-                  <input
-                    value={insuranceProvider}
-                    onChange={(e) => setInsuranceProvider(e.target.value)}
-                    placeholder="e.g. Star Health"
-                    className="input"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Policy Number</FieldLabel>
-                  <input
-                    value={policyNumber}
-                    onChange={(e) => setPolicyNumber(e.target.value)}
-                    placeholder="Policy / Claim ID"
-                    className="input"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Coverage %</FieldLabel>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={coveragePercent}
-                    onChange={(e) => setCoveragePercent(e.target.value)}
-                    className="input"
-                  />
-                </div>
-                <div>
-                  <FieldLabel>Due Date</FieldLabel>
-                  <input
-                    type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
-                    className="input"
-                  />
-                </div>
-              </div>
+            <div className="flex justify-between items-center text-red-300">
+              <span className="font-bold uppercase tracking-widest text-[10px]">Discount</span>
+              <span className="font-bold">- {money(discount)}</span>
             </div>
-
-            <div ref={sectionRefs.payment} className="card section-block">
-              <SectionTitle icon="💳" title="Payment Details" />
-              <div className="field-stack">
-                <div>
-                  <FieldLabel>Payment Method</FieldLabel>
-                  <div className="method-grid">
-                    {["Cash", "UPI", "Card", "Online"].map((m) => (
-                      <button
-                        key={m}
-                        onClick={() => setPaymentMethod(m)}
-                        className={paymentMethod === m ? "method-btn active" : "method-btn"}
-                      >
-                        {m}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <FieldLabel>Payment Status</FieldLabel>
-                  <div className="method-grid">
-                    {["draft", "pending", "partial", "paid"].map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setBillStatus(s)}
-                        className={billStatus === s ? "method-btn active" : "method-btn"}
-                      >
-                        {capitalize(s)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            <div className="pt-6 border-t border-white/10 flex justify-between items-baseline">
+              <span className="text-lg font-bold">Total</span>
+              <span className="text-4xl font-black tracking-tighter">{money(total)}</span>
             </div>
+          </div>
 
-            <div ref={sectionRefs.summary} className="card card--dark section-block">
-              <SectionTitle icon="🧮" title="Summary" />
-              <SummaryRow label="Subtotal" value={money(subtotal)} />
-              <SummaryRow label={`GST (${Math.round(TAX_RATE * 100)}%)`} value={money(tax)} />
-              <SummaryRow label="Discount" value={`- ${money(discountAmount)}`} />
-              <SummaryRow label="Insurance Deduction" value={`- ${money(insuranceDeduction)}`} />
-              <div className="divider" />
-              <div className="big-total">
-                <span>Total Amount</span>
-                <strong>{money(totalAmount)}</strong>
-              </div>
-
-              <div className="note-box">
-                Paid: {money(paidAmount)}
-                <br />
-                Due: {money(dueAmount)}
-              </div>
-
-              <div className="field-stack mt-14">
-                <div>
-                  <FieldLabel>Discount</FieldLabel>
-                  <input
-                    type="number"
-                    min="0"
-                    value={discount}
-                    onChange={(e) => setDiscount(e.target.value)}
-                    className="input"
-                  />
-                </div>
-              </div>
+          <div className="space-y-4">
+            <p className="text-[10px] font-black text-emerald-100/40 uppercase tracking-widest ml-1">Payment Method</p>
+            <div className="grid grid-cols-2 gap-4">
+              <button onClick={() => setPaymentMethod("Cash")} className={cn("h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-xs transition-all", paymentMethod === "Cash" ? "bg-white text-brand shadow-xl scale-105" : "bg-white/10 text-white border border-white/10 hover:bg-white/20")}>
+                <Banknote className="w-5 h-5 text-emerald-600" /> CASH
+              </button>
+              <button onClick={() => setPaymentMethod("Online")} className={cn("h-16 rounded-2xl flex items-center justify-center gap-3 font-black text-xs transition-all", paymentMethod === "Online" ? "bg-white text-brand shadow-xl scale-105" : "bg-white/10 text-white border border-white/10 hover:bg-white/20")}>
+                <CreditCard className="w-5 h-5 text-emerald-300" /> ONLINE
+              </button>
             </div>
+          </div>
 
-            <div ref={sectionRefs.preview} className="card section-block">
-              <SectionTitle icon="📷" title="Preview" />
-              <div className="snapshot">
-                <div className="snapshot__name">{HOSPITAL_INFO.name}</div>
-                <div className="snapshot__sub">
-                  {selectedPatientObj?.name || "Select a patient"}
-                </div>
-                <div className="snapshot__line">
-                  Invoice: <strong>{generateInvoiceNumber(bills.length)}</strong>
-                </div>
-                <div className="snapshot__line">
-                  Total: <strong>{money(totalAmount)}</strong>
-                </div>
-                <div className="snapshot__line">
-                  Status: <strong>{capitalize(billStatus)}</strong>
-                </div>
-              </div>
-
-              <div className="action-stack">
-                <button onClick={saveBill} className="btn btn-primary">
-                  Save Invoice & Preview
-                </button>
-                <button onClick={resetForm} className="btn btn-secondary">
-                  Reset Form
-                </button>
-              </div>
-            </div>
-
-            <div ref={sectionRefs.saved} className="card section-block">
-              <SectionTitle icon="📋" title="Saved Bills" />
-              <div className="saved-list">
-                {bills.map((bill) => {
-                  const patient = getPatient(bill.patient);
-                  return (
-                    <div
-                      key={bill._id}
-                      className="list-row"
-                      style={{ borderLeftColor: statusColor(bill.status) }}
-                    >
-                      <div>
-                        <div className="list-row__title">{bill.invoiceNumber}</div>
-                        <div className="list-row__meta">
-                          {fmtDateTime(bill.issuedAt)} · {patient?.name || "Unknown"}
-                        </div>
-                      </div>
-                      <div className="list-row__right">
-                        <div className="list-row__amount">{money(bill.totalAmount)}</div>
-                        <div
-                          className="list-row__status"
-                          style={{ color: statusColor(bill.status) }}
-                        >
-                          {capitalize(bill.status)}
-                        </div>
-                        <button className="btn btn-light" onClick={() => setViewBill(bill)}>
-                          View
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </main>
+          <button onClick={finalize} disabled={saving} className="w-full h-16 bg-white text-brand rounded-2xl font-black shadow-2xl shadow-black/20 hover:scale-105 transition-transform group flex items-center justify-center gap-2 disabled:opacity-60">
+            {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : (<><span>FINALIZE & PRINT</span> <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>)}
+          </button>
         </div>
-      )}
+
+        <div className="bg-surface p-8 rounded-[3rem] border border-border/60 shadow-sm space-y-6">
+          <h2 className="text-lg font-bold text-brand tracking-tight">Recent Invoices</h2>
+          <div className="space-y-4">
+            {(recent.length ? recent : [
+              { _id: "demo1", invoiceNumber: "INV-2026-0001", patient: { name: "Charlie Sheen" }, totalAmount: 1200, status: "paid" },
+              { _id: "demo2", invoiceNumber: "INV-2026-0002", patient: { name: "Bob Marley" }, totalAmount: 455, status: "pending" },
+            ]).map((inv) => (
+              <div key={inv._id} className="flex items-center justify-between p-4 bg-surface-muted rounded-2xl group hover:bg-brand-soft transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center text-muted-foreground/50 group-hover:text-brand-accent shadow-sm border border-border/40">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-foreground">{inv.patient?.name || "Patient"}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground/50 uppercase">{inv.invoiceNumber}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-black text-foreground">{money(inv.totalAmount)}</p>
+                  <span className={cn("text-[8px] font-black uppercase tracking-widest", inv.status === "paid" ? "text-brand-accent" : "text-orange-500")}>{capitalize(inv.status)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-widest text-center">{HOSPITAL_INFO.name} · {fmtDate(new Date())}</p>
+        </div>
+      </aside>
     </div>
   );
 }

@@ -1,14 +1,13 @@
-import React from "react";
-import "./App.css";
-import BillingPage from "./pages/billing/BillingPage.jsx";
+import { BrowserRouter as Router } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import AppRoutes from "./routes/AppRoutes";
 
-const App = () => {
+export default function App() {
   return (
-    <div id="app" style={{ padding: "20px" }}>
-      <BillingPage />
-      <h1>hellooo</h1>
-    </div>
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
   );
-};
-
-export default App;
+}

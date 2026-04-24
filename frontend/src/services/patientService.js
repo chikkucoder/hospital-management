@@ -1,13 +1,14 @@
 import { apiRequest } from "./api";
 
-export function fetchPatients() {
-  return apiRequest("/api/patients");
-}
-
-export function createPatient(payload) {
-  return apiRequest("/api/patients", {
+export const patientService = {
+  getAll: () => apiRequest("/patients"),
+  getById: (id) => apiRequest(`/patients/${id}`),
+  create: (data) => apiRequest("/patients", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-}
+    body: JSON.stringify(data),
+  }),
+  update: (id, data) => apiRequest(`/patients/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  }),
+};

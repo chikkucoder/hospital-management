@@ -1,9 +1,10 @@
-const express = require("express");
-const patientController = require("../controllers/patientController");
+import { Router } from "express";
+import * as c from "../controllers/patientController.js";
 
-const router = express.Router();
-
-router.get("/", patientController.listPatients);
-router.post("/", patientController.createPatient);
-
-module.exports = router;
+const r = Router();
+r.get("/", c.listPatients);
+r.get("/:id", c.getPatient);
+r.post("/", c.createPatient);
+r.put("/:id", c.updatePatient);
+r.delete("/:id", c.deletePatient);
+export default r;

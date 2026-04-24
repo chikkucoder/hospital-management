@@ -1,9 +1,16 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const patientSchema = new mongoose.Schema({
-  name: String,
-  age: Number,
-  gender: String,
-});
+const PatientSchema = new mongoose.Schema(
+  {
+    _id: { type: String, required: true }, // UHID e.g. "P-4412"
+    name: { type: String, required: true, trim: true },
+    age: { type: Number, min: 0 },
+    gender: { type: String, enum: ["Male", "Female", "Other"], default: "Other" },
+    phone: String,
+    email: String,
+    address: String,
+  },
+  { timestamps: true, _id: false }
+);
 
-module.exports = mongoose.model("Patient", patientSchema);
+export default mongoose.model("Patient", PatientSchema);
