@@ -20,8 +20,11 @@ export default defineConfig(({mode}) => {
       },
     },
     server: {
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: true,
+      watch: {
+        usePolling: true,
+        interval: 300,
+      },
     },
   };
 });

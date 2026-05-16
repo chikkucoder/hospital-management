@@ -6,10 +6,6 @@ import {
   Settings, 
   LogOut, 
   ClipboardList,
-  FlaskConical,
-  Pill,
-  ReceiptIndianRupee,
-  BarChart3,
   ShieldCheck,
   FileText
 } from "lucide-react";
@@ -25,10 +21,6 @@ export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
     { name: "Doctors", path: "/doctors", icon: Stethoscope, roles: [Role.ADMIN, Role.RECEPTIONIST] },
     { name: "Appointments", path: "/appointments", icon: ClipboardList, roles: [Role.ADMIN, Role.DOCTOR, Role.RECEPTIONIST, Role.PATIENT] },
     { name: "EMR", path: "/emr", icon: FileText, roles: [Role.ADMIN, Role.DOCTOR] },
-    { name: "Laboratory", path: "/lab", icon: FlaskConical, roles: [Role.ADMIN, Role.LAB, Role.DOCTOR] },
-    { name: "Pharmacy", path: "/pharmacy", icon: Pill, roles: [Role.ADMIN, Role.PHARMACY, Role.DOCTOR] },
-    { name: "Billing", path: "/billing", icon: ReceiptIndianRupee, roles: [Role.ADMIN, Role.RECEPTIONIST] },
-    { name: "Analytics", path: "/analytics", icon: BarChart3, roles: [Role.ADMIN] },
     { name: "Admin Panel", path: "/admin/users", icon: ShieldCheck, roles: [Role.ADMIN] },
     { name: "Settings", path: "/settings", icon: Settings, roles: [Role.ADMIN, Role.DOCTOR, Role.PATIENT] },
   ];

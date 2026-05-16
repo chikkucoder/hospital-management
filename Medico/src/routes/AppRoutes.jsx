@@ -7,10 +7,6 @@ import Register from "../pages/auth/Register";
 import Dashboard from "../pages/Dashboard";
 import Patients from "../pages/patient/PatientList";
 import EMR from "../pages/EMR";
-import Pharmacy from "../pages/Pharmacy";
-import Laboratory from "../pages/Laboratory";
-import Billing from "../pages/Billing";
-import Analytics from "../pages/Analytics";
 import { Role } from "../types";
 
 const ComingSoon = ({ title }) => (
@@ -41,7 +37,6 @@ export default function AppRoutes() {
       {/* Admin & Receptionist */}
       <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.RECEPTIONIST]} />}>
         <Route element={<Layout><ComingSoon title="Doctors Management" /></Layout>} path="/doctors" />
-        <Route element={<Layout><Billing /></Layout>} path="/billing" />
       </Route>
 
       {/* Clinical Staff */}
@@ -55,17 +50,8 @@ export default function AppRoutes() {
          <Route element={<Layout><EMR /></Layout>} path="/emr" />
       </Route>
 
-      {/* Specialized Modules */}
-      <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.LAB]} />}>
-         <Route element={<Layout><Laboratory /></Layout>} path="/lab" />
-      </Route>
-      <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.PHARMACY]} />}>
-         <Route element={<Layout><Pharmacy /></Layout>} path="/pharmacy" />
-      </Route>
-
       {/* Admin Only */}
       <Route element={<RoleGuard allowedRoles={[Role.ADMIN]} />}>
-        <Route element={<Layout><Analytics /></Layout>} path="/analytics" />
         <Route element={<Layout><ComingSoon title="User Management" /></Layout>} path="/admin/users" />
       </Route>
 

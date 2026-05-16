@@ -8,6 +8,11 @@ import Patients from "../pages/patient/PatientList";
 import PatientProfile from "../pages/patient/PatientProfile";
 import Appointments from "../pages/appointment/AppointmentList";
 import EMR from "../pages/EMR";
+import Prescription from "../pages/Prescription";
+import MedicalHistory from "../pages/MedicalHistory";
+import ReportsDashboard from "../pages/ReportsDashboard";
+import LabReport from "../pages/LabReport";
+import LabReportUpload from "../pages/LabReportUpload";
 import Pharmacy from "../pages/Pharmacy";
 import Laboratory from "../pages/Laboratory";
 import Billing from "../pages/Billing";
@@ -19,7 +24,7 @@ import { Role } from "../types";
 const ComingSoon = ({ title }) => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 bg-white rounded-[3rem] shadow-sm border border-gray-100">
     <div className="w-24 h-24 bg-emerald-50 rounded-[2.5rem] flex items-center justify-center mb-6">
-       <div className="w-12 h-12 bg-emerald-600 rounded-2xl animate-pulse" />
+      <div className="w-12 h-12 bg-emerald-600 rounded-2xl animate-pulse" />
     </div>
     <h1 className="text-3xl font-bold text-[#06402B] mb-2">{title}</h1>
     <p className="text-gray-500 font-medium">This module is currently being optimized for your workflow.</p>
@@ -32,7 +37,7 @@ export default function AppRoutes() {
       {/* Public Routes */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
-      
+
       {/* Universal Protected Routes */}
       <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.DOCTOR, Role.RECEPTIONIST, Role.LAB, Role.PHARMACY]} />}>
         <Route element={<Layout><Dashboard /></Layout>} path="/dashboard" />
@@ -55,34 +60,53 @@ export default function AppRoutes() {
 
       {/* Clinical Workflows */}
       <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.DOCTOR]} />}>
-         <Route element={<Layout><EMR /></Layout>} path="/emr" />
+        <Route element={<Layout><EMR /></Layout>} path="/emr" />
+        <Route element={<Layout><EMR /></Layout>} path="/emr/:patientId" />
+        <Route element={<Layout><Prescription /></Layout>} path="/prescriptions" />
+        <Route element={<Layout><Prescription /></Layout>} path="/prescriptions/:patientId" />
+        <Route element={<Layout><MedicalHistory /></Layout>} path="/history" />
+        <Route element={<Layout><MedicalHistory /></Layout>} path="/history/:patientId" />
+      </Route>
+
+      {/* Reports & Diagnostics */}
+      <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.DOCTOR, Role.LAB]} />}>
+        <Route element={<Layout><ReportsDashboard /></Layout>} path="/reports" />
+        <Route element={<Layout><ReportsDashboard /></Layout>} path="/reports/:patientId" />
+        <Route element={<Layout><LabReport /></Layout>} path="/lab-reports" />
+        <Route element={<Layout><LabReport /></Layout>} path="/lab-reports/:patientId" />
+        <Route element={<Layout><LabReportUpload /></Layout>} path="/lab-reports/upload" />
+        <Route element={<Layout><LabReportUpload /></Layout>} path="/lab-reports/upload/:patientId" />
       </Route>
 
       {/* Specialized Modules */}
       <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.LAB]} />}>
-         <Route element={<Layout><Laboratory /></Layout>} path="/lab" />
+        <Route element={<Layout><Laboratory /></Layout>} path="/lab" />
       </Route>
       <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.PHARMACY]} />}>
-         <Route element={<Layout><Pharmacy /></Layout>} path="/pharmacy" />
+        <Route element={<Layout><Pharmacy /></Layout>} path="/pharmacy" />
+      </Route>
+
+      {/* Admin & Doctor Analytics */}
+      <Route element={<RoleGuard allowedRoles={[Role.ADMIN, Role.DOCTOR]} />}>
+        <Route element={<Layout><Analytics /></Layout>} path="/analytics" />
       </Route>
 
       {/* Admin Only */}
       <Route element={<RoleGuard allowedRoles={[Role.ADMIN]} />}>
-        <Route element={<Layout><Analytics /></Layout>} path="/analytics" />
         <Route element={<Layout><UserManagement /></Layout>} path="/admin/users" />
       </Route>
 
       {/* Fallback */}
       <Route path="/unauthorized" element={
         <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white">
-           <h1 className="text-9xl font-black text-emerald-50 mb-4 select-none">403</h1>
-           <div className="text-center relative -top-16">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
-              <p className="text-gray-500 mb-8 max-w-sm">You do not have the required permissions to access this clinical module.</p>
-              <button onClick={() => window.history.back()} className="h-12 px-8 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl shadow-emerald-600/20 hover:scale-105 transition-transform">
-                 Go Back
-              </button>
-           </div>
+          <h1 className="text-9xl font-black text-emerald-50 mb-4 select-none">403</h1>
+          <div className="text-center relative -top-16">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
+            <p className="text-gray-500 mb-8 max-w-sm">You do not have the required permissions to access this clinical module.</p>
+            <button onClick={() => window.history.back()} className="h-12 px-8 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl shadow-emerald-600/20 hover:scale-105 transition-transform">
+              Go Back
+            </button>
+          </div>
         </div>
       } />
       <Route path="*" element={<Navigate to="/" replace />} />

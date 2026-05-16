@@ -1,26 +1,20 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Stethoscope, 
-  Settings, 
-  LogOut, 
-  Bell, 
+import {
+  LayoutDashboard,
+  Users,
+  Stethoscope,
+  Settings,
+  LogOut,
+  Bell,
   Search,
   User as UserIcon,
-  Menu,
-  X,
-  Plus,
   ArrowRight,
   ClipboardList,
-  FlaskConical,
-  Pill,
-  ReceiptIndianRupee,
-  BarChart3,
   ShieldCheck,
   FileText,
   ChevronDown,
-  UserCircle
+  UserCircle,
+  Menu
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
@@ -64,10 +58,6 @@ export default function Layout({ children }) {
     { name: "Doctors", path: "/doctors", icon: Stethoscope, roles: [Role.ADMIN, Role.RECEPTIONIST] },
     { name: "Appointments", path: "/appointments", icon: ClipboardList, roles: [Role.ADMIN, Role.DOCTOR, Role.RECEPTIONIST, Role.PATIENT] },
     { name: "EMR", path: "/emr", icon: FileText, roles: [Role.ADMIN, Role.DOCTOR] },
-    { name: "Laboratory", path: "/lab", icon: FlaskConical, roles: [Role.ADMIN, Role.LAB, Role.DOCTOR] },
-    { name: "Pharmacy", path: "/pharmacy", icon: Pill, roles: [Role.ADMIN, Role.PHARMACY, Role.DOCTOR] },
-    { name: "Billing", path: "/billing", icon: ReceiptIndianRupee, roles: [Role.ADMIN, Role.RECEPTIONIST] },
-    { name: "Analytics", path: "/analytics", icon: BarChart3, roles: [Role.ADMIN] },
     { name: "Admin Panel", path: "/admin/users", icon: ShieldCheck, roles: [Role.ADMIN] },
     { name: "Settings", path: "/settings", icon: Settings, roles: [Role.ADMIN, Role.DOCTOR, Role.PATIENT] },
   ];
@@ -90,7 +80,7 @@ export default function Layout({ children }) {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside 
+      <aside
         className={cn(
           "bg-white border-r border-gray-100 transition-all duration-300 h-full fixed md:relative inset-y-0 left-0 z-50",
           "md:translate-x-0 flex-shrink-0",
@@ -98,35 +88,22 @@ export default function Layout({ children }) {
         )}
       >
         <div className="h-full flex flex-col overflow-hidden">
-          {/* Logo */}
-          <div className="h-20 flex items-center px-6 border-b border-gray-50 flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <img src="/logo.svg" alt="Logo" className="w-10 h-10 flex-shrink-0 object-contain" />
-              <span className={cn(
-                "font-bold text-2xl tracking-tighter text-[#06402B] transition-all duration-300 transform",
-                isSidebarOpen ? "opacity-100 translate-x-0" : "opacity-0 md:opacity-0 w-0 -translate-x-2 overflow-hidden"
-              )}>
-                Medico
-              </span>
-            </div>
-          </div>
-
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-             <div className={cn(
-               "px-4 py-2 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest transition-opacity duration-300",
-               isSidebarOpen ? "opacity-100" : "opacity-0"
-             )}>
-                Main Menu
-             </div>
+            <div className={cn(
+              "px-4 py-2 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest transition-opacity duration-300",
+              isSidebarOpen ? "opacity-100" : "opacity-0"
+            )}>
+              Main Menu
+            </div>
             {filteredMenu.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group relative",
-                  location.pathname === item.path 
-                    ? "bg-emerald-50 text-emerald-700 font-bold" 
+                  location.pathname === item.path
+                    ? "bg-emerald-50 text-emerald-700 font-bold"
                     : "text-gray-500 hover:bg-gray-50 hover:text-[#06402B]"
                 )}
               >
@@ -140,7 +117,7 @@ export default function Layout({ children }) {
                 )}>
                   {item.name}
                 </span>
-                
+
                 {location.pathname === item.path && !isSidebarOpen && (
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-emerald-600 rounded-l-full" />
                 )}
@@ -177,7 +154,10 @@ export default function Layout({ children }) {
         {/* Topbar */}
         <header className="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-4 md:px-10 flex-shrink-0 z-40">
           <div className="flex items-center gap-6">
-            <button 
+            <Link to="/dashboard" className="flex items-center gap-3 flex-shrink-0">
+              <img src="/logo.svg" alt="Medico" className="h-10 w-auto object-contain" />
+            </Link>
+            <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2.5 text-gray-400 hover:text-[#06402B] hover:bg-emerald-50 rounded-xl transition-all"
             >
@@ -185,9 +165,9 @@ export default function Layout({ children }) {
             </button>
             <div className="relative group hidden lg:block">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search across Medico..." 
+              <input
+                type="text"
+                placeholder="Search across Medico..."
                 className="bg-gray-50 border-none rounded-2xl pl-12 pr-6 h-12 w-80 text-sm focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all outline-none"
               />
             </div>
@@ -198,12 +178,12 @@ export default function Layout({ children }) {
               <Bell className="w-6 h-6 group-hover:animate-bounce" />
               <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
             </button>
-            
+
             <div className="w-px h-8 bg-gray-100" />
-            
+
             {/* User Dropdown */}
             <div className="relative" ref={profileRef}>
-              <button 
+              <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-3 pl-2 py-1 pr-1 group hover:bg-gray-50 rounded-2xl transition-all"
               >
@@ -229,17 +209,17 @@ export default function Layout({ children }) {
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden pb-2 pt-2 z-50"
                   >
-                     <div className="px-4 py-3 mb-2 border-b border-gray-50">
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Account</p>
-                     </div>
-                     <Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                        <UserCircle className="w-5 h-5" />
-                        <span className="font-bold">My Profile</span>
-                     </Link>
-                     <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">
-                        <LogOut className="w-5 h-5" />
-                        <span className="font-bold">Sign Out</span>
-                     </button>
+                    <div className="px-4 py-3 mb-2 border-b border-gray-50">
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Account</p>
+                    </div>
+                    <Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                      <UserCircle className="w-5 h-5" />
+                      <span className="font-bold">My Profile</span>
+                    </Link>
+                    <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-bold">Sign Out</span>
+                    </button>
                   </motion.div>
                 )}
               </AnimatePresence>

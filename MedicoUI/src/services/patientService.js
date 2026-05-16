@@ -1,8 +1,12 @@
 import { initialPatients } from "./mockData";
 
-// Persist patients in localStorage for demo
-if (!localStorage.getItem("medico_patients")) {
+const DATA_VERSION = 2; // Bump this when mockData structure changes
+
+// Persist patients in localStorage for demo — version-aware cache
+const storedVersion = localStorage.getItem("medico_patients_version");
+if (!localStorage.getItem("medico_patients") || Number(storedVersion) !== DATA_VERSION) {
   localStorage.setItem("medico_patients", JSON.stringify(initialPatients));
+  localStorage.setItem("medico_patients_version", String(DATA_VERSION));
 }
 
 const getPatients = () => JSON.parse(localStorage.getItem("medico_patients"));
