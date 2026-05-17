@@ -4,10 +4,11 @@ import { cn } from "../../lib/utils";
 const Button = forwardRef(
   ({ className, variant = "primary", size = "md", ...props }, ref) => {
     const variants = {
-      primary: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-600/10 shadow-lg",
-      secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200",
-      outline: "bg-transparent border border-gray-200 text-gray-700 hover:bg-gray-50",
-      ghost: "bg-transparent text-gray-600 hover:bg-gray-100",
+      primary: "bg-[#06402B] text-white hover:bg-emerald-800 shadow-xl shadow-emerald-900/10 hover:shadow-emerald-900/20 active:scale-95",
+      secondary: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100/80 shadow-sm",
+      glass: "bg-white/40 backdrop-blur-md border border-white/20 text-[#06402B] hover:bg-white/60 shadow-xl shadow-white/10",
+      outline: "bg-transparent border-2 border-emerald-100 text-[#06402B] hover:border-emerald-600 hover:bg-emerald-50/50 hover:backdrop-blur-sm",
+      ghost: "bg-transparent text-gray-600 hover:bg-emerald-50 hover:text-emerald-700",
     };
 
     const sizes = {

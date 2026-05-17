@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Bell, 
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../../lib/utils";
+import NotificationCenter from "./NotificationCenter";
 
 export default function Navbar({ 
   user, 
@@ -20,6 +22,19 @@ export default function Navbar({
   profileRef, 
   handleLogout 
 }) {
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const notificationRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setIsNotificationsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <header className="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-4 md:px-10 flex-shrink-0 z-40">
       <div className="flex items-center gap-6">
@@ -40,10 +55,27 @@ export default function Navbar({
       </div>
 
       <div className="flex items-center gap-2 md:gap-6">
-        <button className="p-2.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all relative group">
-          <Bell className="w-6 h-6 group-hover:animate-bounce" />
-          <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
-        </button>
+        <div className="relative" ref={notificationRef}>
+          <button 
+            onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+            className={cn(
+              "p-2.5 rounded-xl transition-all relative group",
+              isNotificationsOpen ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/20" : "text-gray-400 hover:text-emerald-600 hover:bg-emerald-50"
+            )}
+          >
+            <Bell className="w-6 h-6" />
+            <span className={cn(
+              "absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full border-2",
+              isNotificationsOpen ? "bg-white border-emerald-600" : "bg-red-500 border-white"
+            )} />
+          </button>
+          
+          <NotificationCenter 
+            isOpen={isNotificationsOpen} 
+            onClose={() => setIsNotificationsOpen(false)} 
+            role={user?.role}
+          />
+        </div>
         
         <div className="w-px h-8 bg-gray-100" />
         

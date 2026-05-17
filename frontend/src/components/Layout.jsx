@@ -1,33 +1,20 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, 
-  Users, 
-  Stethoscope, 
-  Settings, 
-  LogOut, 
   Bell, 
   Search,
   User as UserIcon,
   Menu,
   X,
-  Plus,
-  ArrowRight,
-  ClipboardList,
-  FlaskConical,
-  Pill,
-  ReceiptIndianRupee,
-  BarChart3,
-  ShieldCheck,
-  FileText,
   ChevronDown,
-  UserCircle
+  UserCircle,
+  LogOut
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../hooks/useAuth";
-import { Role } from "../types";
 import { cn } from "../lib/utils";
 import Breadcrumbs from "./Breadcrumbs";
+import Sidebar from "./layout/Sidebar";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -58,24 +45,8 @@ export default function Layout({ children }) {
     navigate("/login");
   };
 
-  const menuItems = [
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: [Role.ADMIN, Role.DOCTOR, Role.PATIENT, Role.RECEPTIONIST, Role.LAB, Role.PHARMACY] },
-    { name: "Patients", path: "/patients", icon: Users, roles: [Role.ADMIN, Role.DOCTOR, Role.RECEPTIONIST] },
-    { name: "Doctors", path: "/doctors", icon: Stethoscope, roles: [Role.ADMIN, Role.RECEPTIONIST] },
-    { name: "Appointments", path: "/appointments", icon: ClipboardList, roles: [Role.ADMIN, Role.DOCTOR, Role.RECEPTIONIST, Role.PATIENT] },
-    { name: "EMR", path: "/emr", icon: FileText, roles: [Role.ADMIN, Role.DOCTOR] },
-    { name: "Laboratory", path: "/lab", icon: FlaskConical, roles: [Role.ADMIN, Role.LAB, Role.DOCTOR] },
-    { name: "Pharmacy", path: "/pharmacy", icon: Pill, roles: [Role.ADMIN, Role.PHARMACY, Role.DOCTOR] },
-    { name: "Billing", path: "/billing", icon: ReceiptIndianRupee, roles: [Role.ADMIN, Role.RECEPTIONIST] },
-    { name: "Analytics", path: "/analytics", icon: BarChart3, roles: [Role.ADMIN] },
-    { name: "Admin Panel", path: "/admin/users", icon: ShieldCheck, roles: [Role.ADMIN] },
-    { name: "Settings", path: "/settings", icon: Settings, roles: [Role.ADMIN, Role.DOCTOR, Role.PATIENT] },
-  ];
-
-  const filteredMenu = menuItems.filter(item => user && item.roles.includes(user.role));
-
   return (
-    <div className="h-screen bg-[#FDFDFD] flex overflow-hidden">
+    <div className="h-screen bg-bg-primary flex overflow-hidden">
       {/* Sidebar Backdrop for Mobile */}
       <AnimatePresence>
         {isSidebarOpen && (
@@ -89,106 +60,26 @@ export default function Layout({ children }) {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
-      <aside 
-        className={cn(
-          "bg-white border-r border-gray-100 transition-all duration-300 h-full fixed md:relative inset-y-0 left-0 z-50",
-          "md:translate-x-0 flex-shrink-0",
-          isSidebarOpen ? "translate-x-0 w-72 shadow-2xl md:shadow-none" : "-translate-x-full md:translate-x-0 md:w-24"
-        )}
-      >
-        <div className="h-full flex flex-col overflow-hidden">
-          {/* Logo */}
-          <div className="h-20 flex items-center px-6 border-b border-gray-50 flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <img src="/logo.svg" alt="Logo" className="w-10 h-10 flex-shrink-0 object-contain" />
-              <span className={cn(
-                "font-bold text-2xl tracking-tighter text-[#06402B] transition-all duration-300 transform",
-                isSidebarOpen ? "opacity-100 translate-x-0" : "opacity-0 md:opacity-0 w-0 -translate-x-2 overflow-hidden"
-              )}>
-                Medico
-              </span>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-             <div className={cn(
-               "px-4 py-2 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest transition-opacity duration-300",
-               isSidebarOpen ? "opacity-100" : "opacity-0"
-             )}>
-                Main Menu
-             </div>
-            {filteredMenu.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group relative",
-                  location.pathname === item.path 
-                    ? "bg-emerald-50 text-emerald-700 font-bold" 
-                    : "text-gray-500 hover:bg-gray-50 hover:text-[#06402B]"
-                )}
-              >
-                <item.icon className={cn(
-                  "w-5 h-5 flex-shrink-0 transition-all duration-200",
-                  location.pathname === item.path ? "text-emerald-600 scale-110" : "group-hover:scale-110"
-                )} />
-                <span className={cn(
-                  "transition-all duration-300 whitespace-nowrap",
-                  isSidebarOpen ? "opacity-100 translate-x-0" : "opacity-0 md:opacity-0 w-0 overflow-hidden -translate-x-4"
-                )}>
-                  {item.name}
-                </span>
-                
-                {location.pathname === item.path && !isSidebarOpen && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-emerald-600 rounded-l-full" />
-                )}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Footer / User Profile Brief */}
-          <div className="p-4 border-t border-gray-50 bg-gray-50/30 flex-shrink-0">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all group"
-            >
-              <LogOut className="w-5 h-5 flex-shrink-0 group-hover:rotate-180 transition-transform duration-500" />
-              <span className={cn(
-                "transition-all duration-300 font-bold",
-                isSidebarOpen ? "opacity-100" : "opacity-0 md:opacity-0 w-0 overflow-hidden"
-              )}>
-                Log Out
-              </span>
-            </button>
-            <div className={cn(
-              "mt-4 px-4 text-[10px] text-gray-400 font-medium transition-opacity duration-300",
-              isSidebarOpen ? "opacity-100" : "opacity-0"
-            )}>
-              copyright @bireenainfotech Medico 2026
-            </div>
-          </div>
-        </div>
-      </aside>
+      {/* Sidebar Component */}
+      <Sidebar user={user} isSidebarOpen={isSidebarOpen} handleLogout={handleLogout} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* Topbar */}
-        <header className="h-20 bg-white/80 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-4 md:px-10 flex-shrink-0 z-40">
+        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-10 flex-shrink-0 z-40 shadow-sm">
           <div className="flex items-center gap-6">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2.5 text-gray-400 hover:text-[#06402B] hover:bg-emerald-50 rounded-xl transition-all"
+              className="p-2.5 text-gray-400 hover:text-[#06402B] hover:bg-emerald-50 rounded-xl transition-all md:hidden"
             >
-              <Menu className="w-6 h-6" />
+              {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <div className="relative group hidden lg:block">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-500 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-emerald-600 transition-colors" />
               <input 
                 type="text" 
-                placeholder="Search across Medico..." 
-                className="bg-gray-50 border-none rounded-2xl pl-12 pr-6 h-12 w-80 text-sm focus:ring-4 focus:ring-emerald-500/10 focus:bg-white transition-all outline-none"
+                placeholder="Search..." 
+                className="bg-gray-50 border border-gray-200 rounded-2xl pl-12 pr-6 h-12 w-80 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all outline-none"
               />
             </div>
           </div>
@@ -199,7 +90,7 @@ export default function Layout({ children }) {
               <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
             </button>
             
-            <div className="w-px h-8 bg-gray-100" />
+            <div className="w-px h-8 bg-gray-200" />
             
             {/* User Dropdown */}
             <div className="relative" ref={profileRef}>
@@ -208,14 +99,14 @@ export default function Layout({ children }) {
                 className="flex items-center gap-3 pl-2 py-1 pr-1 group hover:bg-gray-50 rounded-2xl transition-all"
               >
                 <div className="hidden sm:block text-right">
-                  <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-600 transition-colors uppercase tracking-tight">
-                    {user?.name}
+                  <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
+                    {user?.name || "User"}
                   </p>
-                  <p className="text-[10px] uppercase tracking-widest font-black text-emerald-600/60">
-                    {user?.role}
+                  <p className="text-[10px] uppercase tracking-widest font-black text-gray-600">
+                    {user?.role || "Guest"}
                   </p>
                 </div>
-                <div className="w-11 h-11 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-700 shadow-sm border border-white group-hover:scale-105 transition-transform">
+                <div className="w-11 h-11 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100 group-hover:scale-105 transition-transform">
                   <UserIcon className="w-6 h-6" />
                 </div>
                 <ChevronDown className={cn("w-4 h-4 text-gray-400 transition-transform", isProfileOpen ? "rotate-180" : "")} />
@@ -232,9 +123,9 @@ export default function Layout({ children }) {
                      <div className="px-4 py-3 mb-2 border-b border-gray-50">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Account</p>
                      </div>
-                     <Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                     <Link to="/settings" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
                         <UserCircle className="w-5 h-5" />
-                        <span className="font-bold">My Profile</span>
+                        <span className="font-bold">Settings</span>
                      </Link>
                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">
                         <LogOut className="w-5 h-5" />
@@ -249,7 +140,6 @@ export default function Layout({ children }) {
 
         {/* Content Area */}
         <main className="p-6 md:p-10 flex-1 overflow-y-auto">
-          {/* Breadcrumbs integrated here */}
           <Breadcrumbs />
           <div className="max-w-7xl mx-auto">
             {children}

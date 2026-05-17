@@ -1,115 +1,442 @@
 import { Link, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Stethoscope, 
-  Settings, 
-  LogOut, 
+import { useState } from "react";
+
+import {
+  LayoutDashboard,
+  Users,
+  Stethoscope,
+  Settings,
+  LogOut,
   ClipboardList,
-  FlaskConical,
   Pill,
   ReceiptIndianRupee,
   BarChart3,
   ShieldCheck,
-  FileText
+  FileText,
+  ChevronDown,
+  Plus,
+  History,
+  Microscope,
+  Upload,
 } from "lucide-react";
+
 import { cn } from "../../lib/utils";
 import { Role } from "../../types";
 
-export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
+const logoBireena = "/src/assets/logobireena.jpeg";
+
+export default function Sidebar({ user, handleLogout }) {
+
   const location = useLocation();
 
-  const menuItems = [
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, roles: [Role.ADMIN, Role.DOCTOR, Role.PATIENT, Role.RECEPTIONIST, Role.LAB, Role.PHARMACY] },
-    { name: "Patients", path: "/patients", icon: Users, roles: [Role.ADMIN, Role.DOCTOR, Role.RECEPTIONIST] },
-    { name: "Doctors", path: "/doctors", icon: Stethoscope, roles: [Role.ADMIN, Role.RECEPTIONIST] },
-    { name: "Appointments", path: "/appointments", icon: ClipboardList, roles: [Role.ADMIN, Role.DOCTOR, Role.RECEPTIONIST, Role.PATIENT] },
-    { name: "EMR", path: "/emr", icon: FileText, roles: [Role.ADMIN, Role.DOCTOR] },
-    { name: "Laboratory", path: "/lab", icon: FlaskConical, roles: [Role.ADMIN, Role.LAB, Role.DOCTOR] },
-    { name: "Pharmacy", path: "/pharmacy", icon: Pill, roles: [Role.ADMIN, Role.PHARMACY, Role.DOCTOR] },
-    { name: "Billing", path: "/billing", icon: ReceiptIndianRupee, roles: [Role.ADMIN, Role.RECEPTIONIST] },
-    { name: "Analytics", path: "/analytics", icon: BarChart3, roles: [Role.ADMIN] },
-    { name: "Admin Panel", path: "/admin/users", icon: ShieldCheck, roles: [Role.ADMIN] },
-    { name: "Settings", path: "/settings", icon: Settings, roles: [Role.ADMIN, Role.DOCTOR, Role.PATIENT] },
-  ];
+  const [openDropdowns, setOpenDropdowns] = useState({});
 
-  const filteredMenu = menuItems.filter(item => user && item.roles.includes(user.role));
+  const toggleDropdown = (name) => {
+    setOpenDropdowns((prev) => ({
+      ...prev,
+      [name]: !prev[name],
+    }));
+  };
+
+  // =====================================================
+  // ROLE BASED MENU
+  // =====================================================
+
+  const getMenuItems = () => {
+
+    if (!user) return [];
+
+    switch (user.role) {
+
+      // =====================================================
+      // DOCTOR
+      // =====================================================
+
+      case Role.DOCTOR:
+        return [
+          {
+            name: "Doctor Dashboard",
+            path: "/doctor/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "All Patients",
+            path: "/doctor/patients",
+            icon: Users,
+          },
+
+          {
+            name: "Add Prescription",
+            path: "/doctor/prescriptions",
+            icon: Plus,
+          },
+
+          {
+            name: "Reports",
+            path: "/doctor/reports",
+            icon: FileText,
+          },
+
+          {
+            name: "Patient History",
+            path: "/doctor/history",
+            icon: History,
+          },
+        ];
+
+      // =====================================================
+      // LAB
+      // =====================================================
+
+      case Role.LAB:
+        return [
+          {
+            name: "Lab Dashboard",
+            path: "/lab/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "All Reports",
+            path: "/lab/reports",
+            icon: Microscope,
+          },
+
+          {
+            name: "Upload Reports",
+            path: "/lab/upload",
+            icon: Upload,
+          },
+
+          {
+            name: "Pending Samples",
+            path: "/lab/pending",
+            icon: ClipboardList,
+          },
+        ];
+
+      // =====================================================
+      // APPOINTMENT
+      // =====================================================
+
+      case Role.APPOINTMENT:
+        return [
+          {
+            name: "Appointment Dashboard",
+            path: "/appointment/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "Add Appointment",
+            path: "/appointment/add",
+            icon: Plus,
+          },
+
+          {
+            name: "Patients",
+            icon: Users,
+            hasSubmenu: true,
+
+            submenu: [
+              {
+                name: "All Patients",
+                path: "/appointment/patients",
+              },
+
+              {
+                name: "Add Patient",
+                path: "/appointment/add-patient",
+              },
+            ],
+          },
+
+          {
+            name: "Billing",
+            path: "/appointment/billing",
+            icon: ReceiptIndianRupee,
+          },
+
+          {
+            name: "Appointment History",
+            path: "/appointment/history",
+            icon: History,
+          },
+        ];
+
+      // =====================================================
+      // CLINIC
+      // =====================================================
+
+      case Role.CLINIC:
+        return [
+          {
+            name: "Clinic Dashboard",
+            path: "/clinic/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "New Patient",
+            path: "/clinic/new-patient",
+            icon: Plus,
+          },
+
+          {
+            name: "Patient History",
+            path: "/clinic/history",
+            icon: History,
+          },
+
+          {
+            name: "Billing",
+            path: "/clinic/billing",
+            icon: ReceiptIndianRupee,
+          },
+
+          {
+            name: "Medicine Inventory",
+            path: "/clinic/inventory",
+            icon: Pill,
+          },
+
+          {
+            name: "Dispense Medicine",
+            path: "/clinic/dispense",
+            icon: ClipboardList,
+          },
+        ];
+
+      // =====================================================
+      // ADMIN
+      // =====================================================
+
+      case Role.ADMIN:
+      default:
+        return [
+          {
+            name: "Admin Dashboard",
+            path: "/admin/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "All Patients",
+            path: "/patients",
+            icon: Users,
+          },
+
+          {
+            name: "Doctor Management",
+            path: "/admin/doctors",
+            icon: Stethoscope,
+          },
+
+          {
+            name: "Appointments",
+            path: "/appointments",
+            icon: ClipboardList,
+          },
+
+          {
+            name: "Dispensary",
+            icon: Pill,
+            hasSubmenu: true,
+
+            submenu: [
+              {
+                name: "Medicine Inventory",
+                path: "/clinic/inventory",
+              },
+
+              {
+                name: "Add Medicine",
+                path: "/clinic/add-medicine",
+              },
+            ],
+          },
+
+          {
+            name: "User Management",
+            path: "/admin/users",
+            icon: ShieldCheck,
+          },
+
+          {
+            name: "Analytics",
+            path: "/admin/analytics",
+            icon: BarChart3,
+          },
+
+          {
+            name: "Settings",
+            path: "/settings",
+            icon: Settings,
+          },
+        ];
+    }
+  };
+
+  const menuItems = getMenuItems();
+
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
-    <aside 
-      className={cn(
-        "bg-white border-r border-gray-100 transition-all duration-300 h-full fixed md:relative inset-y-0 left-0 z-50",
-        "md:translate-x-0 flex-shrink-0",
-        isSidebarOpen ? "translate-x-0 w-72 shadow-2xl md:shadow-none" : "-translate-x-full md:translate-x-0 md:w-24"
-      )}
-    >
-      <div className="h-full flex flex-col overflow-hidden">
-        {/* Logo */}
-        <div className="h-20 flex items-center px-6 border-b border-gray-50 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <img src="/logo.svg" alt="Logo" className="w-10 h-10 flex-shrink-0 object-contain" />
-            <span className={cn(
-              "font-bold text-2xl tracking-tighter text-[#06402B] transition-all duration-300 transform",
-              isSidebarOpen ? "opacity-100 translate-x-0" : "opacity-0 md:opacity-0 w-0 -translate-x-2 overflow-hidden"
-            )}>
-              Medico
-            </span>
-          </div>
-        </div>
+    <aside className="w-72 h-screen bg-white border-r border-gray-100 flex flex-col shadow-sm">
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-           <div className={cn(
-             "px-4 py-2 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest transition-opacity duration-300",
-             isSidebarOpen ? "opacity-100" : "opacity-0"
-           )}>
-              Main Menu
-           </div>
-          {filteredMenu.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group relative",
-                location.pathname === item.path 
-                  ? "bg-emerald-50 text-emerald-700 font-bold" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-[#06402B]"
-              )}
-            >
-              <item.icon className={cn(
-                "w-5 h-5 flex-shrink-0 transition-all duration-200",
-                location.pathname === item.path ? "text-emerald-600 scale-110" : "group-hover:scale-110"
-              )} />
-              <span className={cn(
-                "transition-all duration-300 whitespace-nowrap",
-                isSidebarOpen ? "opacity-100 translate-x-0" : "opacity-0 md:opacity-0 w-0 overflow-hidden -translate-x-4"
-              )}>
-                {item.name}
-              </span>
-              
-              {location.pathname === item.path && !isSidebarOpen && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-emerald-600 rounded-l-full" />
-              )}
-            </Link>
-          ))}
-        </nav>
+      {/* ===================================================== */}
+      {/* LOGO */}
+      {/* ===================================================== */}
 
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-50 bg-gray-50/30 flex-shrink-0">
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 w-full px-4 py-3 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-2xl transition-all group"
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0 group-hover:rotate-180 transition-transform duration-500" />
-            <span className={cn(
-              "transition-all duration-300 font-bold",
-              isSidebarOpen ? "opacity-100" : "opacity-0 md:opacity-0 w-0 overflow-hidden"
-            )}>
-              Log Out
-            </span>
-          </button>
-        </div>
+      <div className="h-20 flex items-center gap-3 px-6 border-b border-gray-100">
+
+        <img
+          src={logoBireena}
+          alt="Logo"
+          className="h-12 object-contain rounded-xl"
+        />
+
+        
+
       </div>
+
+      {/* ===================================================== */}
+      {/* MENU */}
+      {/* ===================================================== */}
+
+      <nav className="flex-1 p-4 overflow-y-auto">
+
+        <div className="mb-4 px-3 text-xs uppercase tracking-widest font-black text-gray-400">
+          Main Menu
+        </div>
+
+        <div className="space-y-2">
+
+          {menuItems.map((item) => (
+
+            <div key={item.path || item.name}>
+
+              {/* ===================================================== */}
+              {/* SUBMENU */}
+              {/* ===================================================== */}
+
+              {item.hasSubmenu ? (
+
+                <>
+                  <button
+                    onClick={() => toggleDropdown(item.name)}
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-gray-50 transition-all"
+                  >
+
+                    <div className="flex items-center gap-3">
+
+                      <item.icon className="w-5 h-5 text-gray-600" />
+
+                      <span className="font-semibold text-gray-700">
+                        {item.name}
+                      </span>
+
+                    </div>
+
+                    <ChevronDown
+                      className={cn(
+                        "w-4 h-4 transition-transform",
+                        openDropdowns[item.name] && "rotate-180"
+                      )}
+                    />
+
+                  </button>
+
+                  {openDropdowns[item.name] && (
+
+                    <div className="ml-6 mt-2 space-y-1">
+
+                      {item.submenu.map((subitem) => (
+
+                        <Link
+                          key={subitem.path}
+                          to={subitem.path}
+                          className={cn(
+                            "flex items-center gap-3 px-4 py-2 rounded-xl text-sm transition-all",
+
+                            location.pathname === subitem.path
+                              ? "bg-emerald-50 text-emerald-700 font-bold"
+                              : "text-gray-600 hover:bg-gray-50"
+                          )}
+                        >
+
+                          <div className="w-2 h-2 rounded-full bg-gray-400" />
+
+                          {subitem.name}
+
+                        </Link>
+                      ))}
+
+                    </div>
+                  )}
+                </>
+              ) : (
+
+                /* ===================================================== */
+                /* NORMAL MENU */
+                /* ===================================================== */
+
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-4 px-4 py-3 rounded-2xl transition-all",
+
+                    location.pathname === item.path
+                      ? "bg-emerald-50 text-emerald-700 font-bold"
+                      : "text-gray-600 hover:bg-gray-50"
+                  )}
+                >
+
+                  <item.icon
+                    className={cn(
+                      "w-5 h-5",
+
+                      location.pathname === item.path
+                        ? "text-emerald-600"
+                        : "text-gray-500"
+                    )}
+                  />
+
+                  <span className="font-semibold">
+                    {item.name}
+                  </span>
+
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+      </nav>
+
+      {/* ===================================================== */}
+      {/* FOOTER */}
+      {/* ===================================================== */}
+
+      <div className="p-4 border-t border-gray-100">
+
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-50 transition-all"
+        >
+
+          <LogOut className="w-5 h-5" />
+
+          <span className="font-bold">
+            Log Out
+          </span>
+
+        </button>
+
+      </div>
+
     </aside>
   );
 }

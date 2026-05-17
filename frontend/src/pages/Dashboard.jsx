@@ -7,7 +7,7 @@ import PatientDashboard from "./dashboard/PatientDashboard";
 export default function Dashboard() {
   const { user } = useAuth();
 
-  if (user?.role === Role.ADMIN) return <AdminDashboard name={user.name} />;
-  if (user?.role === Role.DOCTOR) return <DoctorDashboard name={user.name} />;
-  return <PatientDashboard name={user.name} />;
+  if (user?.role === Role.ADMIN) return <AdminDashboard user={user} />;
+  if (user?.role === Role.DOCTOR) return <DoctorDashboard user={user} />;
+  return <PatientDashboard user={user} />;
 }
