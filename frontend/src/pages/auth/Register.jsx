@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Loader2, AlertCircle, User, Phone, Award, BookOpen, Stethoscope, ChevronRight, ChevronLeft } from "lucide-react";
 import { Button } from "../../components/common/Button";
+import AnimatedBackground from "../../components/ui/AnimatedBackground";
 import { authService } from "../../services/authService";
 import { cn } from "../../lib/utils";
 const logoBireena = "/src/assets/logobireena.jpeg";
@@ -62,10 +63,11 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative">
+      <AnimatedBackground />
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-lg glass rounded-[3rem] shadow-2xl shadow-primary-dark/5 border border-white/20 overflow-hidden"
+        className="relative z-10 w-full max-w-lg glass rounded-[3rem] shadow-2xl shadow-primary-dark/5 border border-white/20 overflow-hidden"
       >
         <div className="p-10 bg-primary text-white text-center relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl opacity-20 -mr-16 -mt-16" />
