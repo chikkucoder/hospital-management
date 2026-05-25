@@ -17,7 +17,7 @@ import {
 import { Button } from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
 
-const logoBireena = "/src/assets/logobireena.jpeg";
+const logoBireena = "/src/assets/logo.png";
 
 import "./Login.css";
 
@@ -118,13 +118,16 @@ export default function Login() {
   const demoCreds = getDemoCredentials(role);
 
   return (
-    <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative text-primary-dark">
+<div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden
+bg-gradient-to-br from-[#ecfff7] via-[#dffaf0] to-[#c8f5e3]
+bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]
+text-primary-dark">
       
       {/* HEADER / LOGO */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-center gap-4 mb-10 group cursor-pointer"
+        className="flex flex-col items-center gap-4 mb-5 group cursor-pointer"
       >
         <Link
           to="/"

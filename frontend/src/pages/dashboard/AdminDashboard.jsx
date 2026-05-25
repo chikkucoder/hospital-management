@@ -18,7 +18,7 @@ import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tool
 import { Button } from "../../components/common/Button";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
-import logoBireena from "../../assets/logobireena.jpeg";
+import logoBireena from "../../assets/logo.png";
 
 const REVENUE_DATA = [
   { name: 'Mon', revenue: 4000 },

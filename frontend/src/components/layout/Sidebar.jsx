@@ -23,7 +23,7 @@ import {
 import { cn } from "../../lib/utils";
 import { Role } from "../../types";
 
-const logoBireena = "/src/assets/logobireena.jpeg";
+const logoBireena = "/src/assets/logo.png";
 
 export default function Sidebar({ user, handleLogout }) {
 
@@ -296,7 +296,7 @@ export default function Sidebar({ user, handleLogout }) {
         <img
           src={logoBireena}
           alt="Logo"
-          className="h-12 object-contain rounded-xl"
+          className="h-14 object-contain rounded-xl"
         />
 
         
