@@ -1,8 +1,18 @@
-export async function apiRequest(path, options = {}) {
-  const response = await fetch(path, options);
+const API_BASE = "/api";
+
+export const apiRequest = async (endpoint, options = {}) => {
+  const response = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  });
+
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || "Request failed");
+    const error = await response.json();
+    throw new Error(error.message || "Request failed");
   }
+
   return response.json();
-}
+};

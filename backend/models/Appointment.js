@@ -1,9 +1,16 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const appointmentSchema = new mongoose.Schema({
-  patientId: mongoose.Schema.Types.ObjectId,
-  doctorId: mongoose.Schema.Types.ObjectId,
-  scheduledAt: Date,
-});
+const AppointmentSchema = new mongoose.Schema(
+  {
+    _id: { type: String, required: true }, // e.g. "A-1001"
+    patientId: { type: String, ref: "Patient", required: true },
+    doctorName: { type: String, required: true },
+    speciality: String,
+    date: String, // ISO date
+    time: String,
+    notes: String,
+  },
+  { timestamps: true, _id: false }
+);
 
-module.exports = mongoose.model("Appointment", appointmentSchema);
+export default mongoose.model("Appointment", AppointmentSchema);
