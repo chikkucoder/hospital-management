@@ -31,6 +31,8 @@ import Appointments from "../pages/appointment/AppointmentList";
 
 import EMR from "../pages/EMR";
 import Billing from "../pages/Billing";
+import Addtest from "../pages/lab/add-test";
+import TestManagementPage from "../pages/lab/tests";
 
 /* ===================================================== */
 /* DOCTOR PAGES */
@@ -206,6 +208,22 @@ export default function AppRoutes() {
           element={
             <Layout>
               <Dashboard />
+            </Layout>
+          }
+        />
+        <Route
+          path="/lab/add-test"
+          element={
+            <Layout>
+              <Addtest />
+            </Layout>
+          }
+        />
+        <Route
+          path="/lab/tests"
+          element={
+            <Layout>
+              <TestManagementPage />
             </Layout>
           }
         />
