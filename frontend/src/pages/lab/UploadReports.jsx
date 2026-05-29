@@ -131,7 +131,7 @@ export default function UploadReportPage() {
   const record = pendingRecords.find((item) => item.id === recordId);
 
   return (
-    <>
+    <div className="min-h-screen bg-[#F2F9F6] -mx-4 -mt-4 p-4 sm:-mx-6 sm:-mt-6 sm:p-6 lg:-mx-8 lg:-mt-8 lg:p-8 space-y-6">
       <SectionHeader
         title="Upload Report"
         subtitle="Attach signed PDF reports or scanned images to a pending laboratory record."
@@ -182,11 +182,10 @@ export default function UploadReportPage() {
                 addFiles(event.dataTransfer.files);
               }}
               onClick={() => inputRef.current?.click()}
-              className={`rounded-2xl border-2 border-dashed cursor-pointer transition-all px-6 py-12 text-center ${
-                dragOver
+              className={`rounded-2xl border-2 border-dashed cursor-pointer transition-all px-6 py-12 text-center ${dragOver
                   ? "border-primary bg-primary/5"
                   : "border-border bg-secondary/40 hover:bg-secondary hover:border-primary/30"
-              }`}
+                }`}
             >
               <div className="size-14 mx-auto rounded-2xl bg-primary/10 text-primary grid place-items-center mb-3">
                 <UploadCloud className="size-6" />
@@ -227,9 +226,8 @@ export default function UploadReportPage() {
                       </div>
                       <div className="mt-1.5 h-1.5 rounded-full bg-secondary overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all ${
-                            fileEntry.done ? "bg-[color:var(--success)]" : "bg-primary"
-                          }`}
+                          className={`h-full rounded-full transition-all ${fileEntry.done ? "bg-[color:var(--success)]" : "bg-primary"
+                            }`}
                           style={{ width: `${fileEntry.progress}%` }}
                         />
                       </div>
@@ -310,7 +308,7 @@ export default function UploadReportPage() {
           </Card>
         </aside>
       </div>
-    </>
+    </div>
   );
 }
 

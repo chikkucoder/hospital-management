@@ -202,9 +202,9 @@ export default function LabReportsPage() {
     }
   }, [allReports, selectedId]);
 
-  const testTypes = useMemo(() => 
+  const testTypes = useMemo(() =>
     Array.from(new Set(allReports.map((r) => r.testType))).sort(),
-  [allReports]);
+    [allReports]);
 
   const filtered = useMemo(() => {
     return allReports.filter((r) => {
@@ -341,30 +341,30 @@ export default function LabReportsPage() {
     pdf.setTextColor(41, 128, 185);
     pdf.text("Laboratory Report", left, y);
     y += 8;
-    
+
     pdf.setFontSize(10);
     pdf.setTextColor(100, 100, 100);
     pdf.text(`Generated: ${new Date().toLocaleString()}`, left, y);
     y += 12;
-    
+
     pdf.setTextColor(0, 0, 0);
     pdf.setFontSize(11);
     pdf.setFont("helvetica", "normal");
-    
+
     pdf.setDrawColor(200, 200, 200);
     pdf.setFillColor(245, 245, 245);
     pdf.rect(left, y - 4, right - left, 8, 'F');
     writeLine("Report ID", report.id);
     y += 4;
-    
+
     writeLine("Patient", `${report.patientName} (${report.patientId})`);
     writeLine("Age / Gender", `${report.patientAge} / ${report.patientGender}`);
     y += 4;
-    
+
     writeLine("Test", report.testName);
     writeLine("Type", report.testType);
     y += 4;
-    
+
     writeLine("Doctor", `${report.doctor} (${report.doctorSpecialty})`);
     writeLine("Sample Date", report.sampleDate);
     writeLine("Report Date", report.reportDate);
@@ -409,14 +409,14 @@ export default function LabReportsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-[#F2F9F6] -mx-4 -mt-4 p-4 sm:-mx-6 sm:-mt-6 sm:p-6 lg:-mx-8 lg:-mt-8 lg:p-8 space-y-6">
       <SectionHeader
         title="Lab Reports"
         subtitle="Monitor diagnostic reports across patients, doctors and test categories."
         action={
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setFiltersOpen((open) => !open)} className="transition-all duration-200">
-              <Filter className="size-4" /> 
+              <Filter className="size-4" />
               {filtersOpen ? "Hide Filters" : "Show Filters"}
               {hasActiveFilters() && filtersOpen === false && (
                 <span className="ml-1.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
@@ -431,35 +431,35 @@ export default function LabReportsPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard 
-          label="Total Reports" 
-          value={stats.total} 
-          icon={<FileText className="size-5" />} 
-          hint="All-time records" 
+        <StatCard
+          label="Total Reports"
+          value={stats.total}
+          icon={<FileText className="size-5" />}
+          hint="All-time records"
           trend={{ value: "+12%", direction: "up" }}
           className="shadow-sm hover:shadow-md transition-shadow duration-200"
         />
-        <StatCard 
-          label="Reports Today" 
-          value={stats.today} 
-          icon={<Calendar className="size-5" />} 
-          tone="info" 
+        <StatCard
+          label="Reports Today"
+          value={stats.today}
+          icon={<Calendar className="size-5" />}
+          tone="info"
           hint="Samples collected today"
           className="shadow-sm hover:shadow-md transition-shadow duration-200"
         />
-        <StatCard 
-          label="Pending" 
-          value={stats.pending} 
-          icon={<Clock className="size-5" />} 
-          tone="warning" 
+        <StatCard
+          label="Pending"
+          value={stats.pending}
+          icon={<Clock className="size-5" />}
+          tone="warning"
           hint="Awaiting processing"
           className="shadow-sm hover:shadow-md transition-shadow duration-200"
         />
-        <StatCard 
-          label="Completed" 
-          value={stats.completed} 
-          icon={<CheckCircle2 className="size-5" />} 
-          tone="success" 
+        <StatCard
+          label="Completed"
+          value={stats.completed}
+          icon={<CheckCircle2 className="size-5" />}
+          tone="success"
           hint="Released to patient"
           trend={{ value: "98% SLA", direction: "up" }}
           className="shadow-sm hover:shadow-md transition-shadow duration-200"
@@ -477,11 +477,10 @@ export default function LabReportsPage() {
           <button
             key={tab.key}
             onClick={() => handleTabChange(tab.key)}
-            className={`px-5 py-2 text-sm font-medium rounded-t-lg transition-all ${
-              activeTab === tab.key
-                ? "bg-primary text-primary-foreground shadow-sm"
+            className={`px-5 py-2 text-sm font-medium rounded-t-lg transition-all ${activeTab === tab.key
+                ? "bg-[#0B4B34] text-white shadow-sm"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+              }`}
           >
             {tab.label}
           </button>
@@ -550,18 +549,18 @@ export default function LabReportsPage() {
                   </select>
                 </Field>
                 <Field label="Sample From">
-                  <input 
-                    type="date" 
-                    value={from} 
-                    onChange={(e) => setFrom(e.target.value)} 
+                  <input
+                    type="date"
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
                     className={inputCls + " transition-all duration-200 focus:ring-2 focus:ring-primary/20"}
                   />
                 </Field>
                 <Field label="Sample To">
-                  <input 
-                    type="date" 
-                    value={to} 
-                    onChange={(e) => setTo(e.target.value)} 
+                  <input
+                    type="date"
+                    value={to}
+                    onChange={(e) => setTo(e.target.value)}
                     className={inputCls + " transition-all duration-200 focus:ring-2 focus:ring-primary/20"}
                   />
                 </Field>
@@ -579,8 +578,8 @@ export default function LabReportsPage() {
           {/* Reports Table */}
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
-              <thead className="bg-secondary/30 border-b border-border">
-                <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+              <thead>
+                <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
                   <th className="px-4 py-4 first:pl-6 last:pr-6">Report ID</th>
                   <th className="px-4 py-4">Patient</th>
                   <th className="px-4 py-4">Test</th>
@@ -588,7 +587,7 @@ export default function LabReportsPage() {
                   <th className="px-4 py-4">Sample Date</th>
                   <th className="px-4 py-4">Status</th>
                   <th className="px-4 py-4 text-right">Action</th>
-                 </tr>
+                </tr>
               </thead>
               <tbody>
                 {pageRows.length === 0 && (
@@ -604,14 +603,14 @@ export default function LabReportsPage() {
                 )}
                 {pageRows.map((r) => {
                   const active = r.id === selectedId;
+                  const initials = r.patientName.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
                   return (
                     <tr
                       key={r.id}
                       onClick={() => focusReport(r)}
                       className={`
-                        cursor-pointer border-b border-border/40 transition-all duration-150
-                        hover:bg-secondary/20 hover:shadow-sm
-                        ${active ? 'bg-primary/5 border-l-2 border-l-primary' : ''}
+                        cursor-pointer border-b border-gray-100 transition-colors duration-150 hover:bg-gray-50
+                        ${active ? 'bg-emerald-50/50' : ''}
                       `}
                     >
                       <td className="px-4 py-4 pl-6">
@@ -630,9 +629,16 @@ export default function LabReportsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="font-medium text-foreground">{r.patientName}</div>
-                        <div className="text-[11px] text-muted-foreground">
-                          ID: {r.patientId} • {r.patientAge}y • {r.patientGender}
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-lg bg-[#d1f4e0] text-[#0B4B34] font-bold text-xs flex items-center justify-center shrink-0">
+                            {initials}
+                          </div>
+                          <div>
+                            <div className="font-bold text-[#0f281e] text-[13px]">{r.patientName.toUpperCase()}</div>
+                            <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                              ID: {r.patientId} • {r.patientAge}y • {r.patientGender}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -699,11 +705,10 @@ export default function LabReportsPage() {
                       <button
                         key={pageNum}
                         onClick={() => setPage(pageNum)}
-                        className={`min-w-[32px] h-8 px-2 rounded-md text-[13px] font-medium transition-all duration-200 ${
-                          page === pageNum
-                            ? 'bg-primary text-primary-foreground shadow-sm'
+                        className={`min-w-[32px] h-8 px-2 rounded-md text-[13px] font-medium transition-all duration-200 ${page === pageNum
+                            ? 'bg-[#0B4B34] text-white shadow-sm'
                             : 'hover:bg-secondary text-foreground'
-                        }`}
+                          }`}
                       >
                         {pageNum}
                       </button>
@@ -728,9 +733,9 @@ export default function LabReportsPage() {
           <Card className="p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
             {!selected ? (
               <div className="py-12">
-                <EmptyState 
-                  title="Select a report" 
-                  hint="Click on any report row to view detailed information" 
+                <EmptyState
+                  title="Select a report"
+                  hint="Click on any report row to view detailed information"
                   icon={<FileText className="size-12 text-muted-foreground/40" />}
                 />
               </div>

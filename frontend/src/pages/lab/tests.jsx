@@ -63,7 +63,7 @@ export default function TestManagementPage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#F2F9F6] -mx-4 -mt-4 p-4 sm:-mx-6 sm:-mt-6 sm:p-6 lg:-mx-8 lg:-mt-8 lg:p-8">
       <SectionHeader
         title="Test Management"
         subtitle="Maintain your diagnostic test catalog, pricing and turnaround times."
@@ -125,8 +125,8 @@ export default function TestManagementPage() {
 
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm">
-            <thead className="bg-secondary/40">
-              <tr className="text-left text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
+            <thead className="border-b border-gray-100 bg-white">
+              <tr className="text-left text-xs font-semibold uppercase tracking-wider text-gray-400">
                 {["Code", "Test Name", "Category", "Sample", "Method", "TAT", "Price", "Status", ""].map((header, index) => (
                   <th key={index} className="px-4 py-3 font-semibold first:pl-5 last:pr-5">
                     {header}
@@ -328,6 +328,6 @@ export default function TestManagementPage() {
           </div>
         )}
       </Modal>
-    </>
+    </div>
   );
 }

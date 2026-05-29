@@ -210,7 +210,7 @@ export default function LabReportsPage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#F2F9F6] -mx-4 -mt-4 p-4 sm:-mx-6 sm:-mt-6 sm:p-6 lg:-mx-8 lg:-mt-8 lg:p-8">
       <SectionHeader
         title="Lab Reports"
         subtitle="Monitor diagnostic reports across patients, doctors and test categories."
@@ -235,14 +235,14 @@ export default function LabReportsPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-6">
         <Card className="overflow-hidden">
-          <div className="px-5 py-4 border-b border-border flex items-center justify-between gap-3 flex-wrap">
+          <div className="px-5 py-4 border-b border-border flex items-center justify-between gap-3 flex-wrap bg-white">
             <div>
-              <h2 className="font-semibold text-foreground text-[15px]">Reports</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">{filtered.length} matching records</p>
+              <h2 className="font-semibold text-[#0f281e] text-[15px]">Reports</h2>
+              <p className="text-xs text-slate-500 mt-0.5">{filtered.length} matching records</p>
             </div>
             <div className="relative w-full sm:w-72">
               <Search
-                className="size-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"
+                className="size-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"
                 strokeWidth={1.75}
               />
               <input
@@ -258,8 +258,8 @@ export default function LabReportsPage() {
           </div>
 
           {filtersOpen && (
-            <div className="px-5 py-4 border-b border-border bg-secondary/30">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="px-5 py-4 border-b border-border bg-gray-50/50">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <Field label="Status">
                   <select
                     value={status}
@@ -298,7 +298,7 @@ export default function LabReportsPage() {
                   <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputCls} />
                 </Field>
               </div>
-              <div className="flex justify-end mt-3">
+              <div className="flex justify-end mt-4">
                 <Button variant="outline" size="sm" onClick={clearFilters}>
                   Clear Filters
                 </Button>
@@ -306,18 +306,18 @@ export default function LabReportsPage() {
             </div>
           )}
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto bg-white">
             <table className="min-w-full text-sm">
-              <thead className="bg-secondary/40">
-                <tr className="text-left text-[11px] uppercase tracking-[0.06em] text-muted-foreground">
+              <thead>
+                <tr className="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
                   {["Report", "Patient", "Test", "Doctor", "Sample", "Report", "Status", ""].map((h, i) => (
-                    <th key={i} className="px-4 py-3 font-semibold first:pl-5 last:pr-5">
+                    <th key={i} className="px-5 py-4 first:pl-6 last:pr-6">
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-100">
                 {pageRows.length === 0 && (
                   <tr>
                     <td colSpan={8}>
@@ -331,37 +331,45 @@ export default function LabReportsPage() {
                 )}
                 {pageRows.map((r) => {
                   const active = r.id === selectedId;
+                  const initials = r.patientName.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
                   return (
                     <tr
                       key={r.id}
                       onClick={() => focusReport(r)}
-                      className={`cursor-pointer border-t border-border/60 row-hover ${active ? "bg-primary/5" : ""}`}
+                      className={`cursor-pointer transition-colors duration-150 hover:bg-gray-50 ${active ? "bg-emerald-50/50" : ""}`}
                     >
-                      <td className="px-4 py-3.5 pl-5 font-mono text-[12px] text-primary font-medium">{r.id}</td>
-                      <td className="px-4 py-3.5">
-                        <div className="text-foreground font-medium">{r.patientName}</div>
-                        <div className="text-[11px] text-muted-foreground">
-                          {r.patientId} - {r.patientAge}y - {r.patientGender}
+                      <td className="px-5 py-4 pl-6 font-mono text-[13px] text-[#0B4B34] font-medium">{r.id}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="size-9 rounded-lg bg-[#d1f4e0] text-[#0B4B34] font-bold text-xs flex items-center justify-center shrink-0">
+                            {initials}
+                          </div>
+                          <div>
+                            <div className="text-[#0f281e] font-bold text-[13px]">{r.patientName.toUpperCase()}</div>
+                            <div className="text-[11px] text-slate-500 font-medium mt-0.5">
+                              {r.patientAge}Y • {r.patientGender}
+                            </div>
+                          </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3.5">
-                        <div className="text-foreground">{r.testName}</div>
-                        <div className="text-[11px] text-muted-foreground">{r.testType}</div>
+                      <td className="px-5 py-4">
+                        <div className="text-[#0f281e] font-medium">{r.testName}</div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">{r.testType}</div>
                       </td>
-                      <td className="px-4 py-3.5 text-foreground">{r.doctor}</td>
-                      <td className="px-4 py-3.5 text-muted-foreground tabular-nums">{r.sampleDate}</td>
-                      <td className="px-4 py-3.5 text-muted-foreground tabular-nums">{r.reportDate}</td>
-                      <td className="px-4 py-3.5">
+                      <td className="px-5 py-4 text-[#0f281e] font-medium">{r.doctor}</td>
+                      <td className="px-5 py-4 text-slate-500 text-[12px] tabular-nums font-medium">{r.sampleDate}</td>
+                      <td className="px-5 py-4 text-slate-500 text-[12px] tabular-nums font-medium">{r.reportDate}</td>
+                      <td className="px-5 py-4">
                         <StatusBadge status={r.status} />
                       </td>
-                      <td className="px-4 py-3.5 pr-5 text-right">
+                      <td className="px-5 py-4 pr-6 text-right">
                         <button
                           type="button"
                           onClick={(event) => {
                             event.stopPropagation();
                             focusReport(r);
                           }}
-                          className="text-primary hover:underline text-[12px] font-medium"
+                          className="text-[#0B4B34] hover:underline text-[13px] font-semibold"
                         >
                           View
                         </button>
@@ -373,26 +381,26 @@ export default function LabReportsPage() {
             </table>
           </div>
 
-          <div className="flex items-center justify-between px-5 py-3.5 border-t border-border text-[12px] text-muted-foreground">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-white text-[13px] text-slate-500">
             <span>
-              Showing <span className="text-foreground font-medium">{pageRows.length}</span> of{" "}
-              <span className="text-foreground font-medium">{filtered.length}</span> reports
+              Showing <span className="text-[#0f281e] font-medium">{pageRows.length}</span> of{" "}
+              <span className="text-[#0f281e] font-medium">{filtered.length}</span> reports
             </span>
             <div className="flex items-center gap-2">
               <button
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="size-8 rounded-lg border border-border bg-white grid place-items-center disabled:opacity-40 hover:bg-secondary transition"
+                className="size-8 rounded-lg border border-gray-200 bg-white grid place-items-center disabled:opacity-40 hover:bg-gray-50 transition"
               >
                 <ChevronLeft className="size-4" />
               </button>
-              <span className="text-foreground font-medium tabular-nums">
+              <span className="text-[#0f281e] font-medium tabular-nums px-2">
                 {page} / {totalPages}
               </span>
               <button
                 disabled={page === totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="size-8 rounded-lg border border-border bg-white grid place-items-center disabled:opacity-40 hover:bg-secondary transition"
+                className="size-8 rounded-lg border border-gray-200 bg-white grid place-items-center disabled:opacity-40 hover:bg-gray-50 transition"
               >
                 <ChevronRight className="size-4" />
               </button>
@@ -401,22 +409,22 @@ export default function LabReportsPage() {
         </Card>
 
         <aside ref={detailPanelRef} className="xl:sticky xl:top-24 h-fit">
-          <Card className="p-5">
+          <Card className="p-6 bg-white">
             {!selected ? (
               <EmptyState title="Select a report" hint="Click any row to see details." />
             ) : (
               <>
-                <div className="flex items-start justify-between gap-3 mb-5 pb-5 border-b border-border">
+                <div className="flex items-start justify-between gap-3 mb-6 pb-6 border-b border-gray-100">
                   <div className="min-w-0">
-                    <div className="text-[10px] uppercase tracking-[0.1em] font-semibold text-muted-foreground">
+                    <div className="text-[11px] uppercase tracking-wider font-semibold text-slate-400">
                       Report
                     </div>
-                    <div className="text-xl font-semibold text-foreground mt-0.5 font-mono">{selected.id}</div>
+                    <div className="text-2xl font-bold text-[#0f281e] mt-1 font-mono">{selected.id}</div>
                   </div>
                   <StatusBadge status={selected.status} />
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <DetailGroup title="Patient information">
                     <Row k="Name" v={selected.patientName} />
                     <Row k="Patient ID" v={selected.patientId} />
@@ -438,17 +446,17 @@ export default function LabReportsPage() {
                     <Row k="Specialty" v={selected.doctorSpecialty} />
                   </DetailGroup>
 
-                  <Button className="w-full" onClick={() => downloadReport(selected)}>
+                  <Button className="w-full mt-2" onClick={() => downloadReport(selected)}>
                     <Download className="size-4" /> Download Report
                   </Button>
 
                   <DetailGroup title="Report history">
-                    <ol className="relative border-l border-border ml-1.5 space-y-3.5">
+                    <ol className="relative border-l-2 border-gray-100 ml-2 space-y-4">
                       {selected.history.map((h, i) => (
-                        <li key={i} className="pl-4 relative">
-                          <span className="absolute -left-[5px] top-1.5 size-2.5 rounded-full bg-primary ring-4 ring-primary/15" />
-                          <div className="text-[13px] text-foreground font-medium">{h.event}</div>
-                          <div className="text-[11px] text-muted-foreground tabular-nums">{h.date}</div>
+                        <li key={i} className="pl-5 relative">
+                          <span className="absolute -left-[5px] top-1.5 size-2.5 rounded-full bg-[#0B4B34] ring-4 ring-white" />
+                          <div className="text-sm text-[#0f281e] font-semibold">{h.event}</div>
+                          <div className="text-xs text-slate-500 tabular-nums mt-0.5">{h.date}</div>
                         </li>
                       ))}
                     </ol>
@@ -459,26 +467,26 @@ export default function LabReportsPage() {
           </Card>
         </aside>
       </div>
-    </>
+    </div>
   );
 }
 
 function DetailGroup({ title, children }) {
   return (
     <div>
-      <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground mb-2">
+      <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
         {title}
       </div>
-      <div className="space-y-2">{children}</div>
+      <div className="space-y-2.5">{children}</div>
     </div>
   );
 }
 
 function Row({ k, v }) {
   return (
-    <div className="flex justify-between gap-3 text-[13px]">
-      <span className="text-muted-foreground">{k}</span>
-      <span className="text-foreground font-medium text-right">{v}</span>
+    <div className="flex justify-between gap-3 text-sm">
+      <span className="text-slate-500 font-medium">{k}</span>
+      <span className="text-[#0f281e] font-bold text-right">{v}</span>
     </div>
   );
 }

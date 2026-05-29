@@ -29,17 +29,17 @@ export default function AddTestPage() {
   async function save(event) {
     event.preventDefault();
     if (!form.code || !form.name) return;
-    
+
     setIsSaving(true);
     await new Promise(resolve => setTimeout(resolve, 400));
     testsStore.add(form);
     setSaved(true);
-    
+
     setTimeout(() => navigate("/tests"), 700);
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-[#F2F9F6] -mx-4 -mt-4 p-4 sm:-mx-6 sm:-mt-6 sm:p-6 lg:-mx-8 lg:-mt-8 lg:p-8">
       <SectionHeader
         title="Add New Lab Test"
         subtitle="Create a diagnostic test entry for your catalog."
@@ -54,7 +54,7 @@ export default function AddTestPage() {
 
       <form onSubmit={save} className="bg-card rounded-3xl border border-border shadow-soft p-6 sm:p-8 max-w-4xl">
         <div className="flex items-center gap-3 mb-6 pb-5 border-b border-border">
-          <div className="size-11 rounded-2xl bg-primary text-primary-foreground grid place-items-center">
+          <div className="size-11 rounded-2xl bg-[#0B4B34] text-white grid place-items-center">
             <Beaker className="size-5" strokeWidth={1.75} />
           </div>
           <div>
@@ -168,6 +168,6 @@ export default function AddTestPage() {
           </Button>
         </div>
       </form>
-    </>
+    </div>
   );
 }
