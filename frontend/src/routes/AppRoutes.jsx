@@ -27,7 +27,7 @@ import UserRoleManagement from "../pages/admin/UserRoleManagement";
 import Patients from "../pages/patient/PatientList";
 import PatientProfile from "../pages/patient/PatientProfile";
 
-import Appointments from "../pages/appointment/AppointmentList";
+import Appointments from "../pages/appointment/AppointmentListNew";
 
 import EMR from "../pages/EMR";
 import Billing from "../pages/Billing";
@@ -57,8 +57,7 @@ import UploadReports from "../pages/lab/UploadReports";
 /* ===================================================== */
 /* APPOINTMENT PAGES */
 /* ===================================================== */
-
-import AppointmentDashboard from "../pages/appointment/AppointmentDashboard";
+import AppointmentDashboard from "../pages/appointment/AppointmentListNew";
 import AppointmentScheduler from "../pages/appointment/AppointmentScheduler";
 import PatientQueue from "../pages/appointment/PatientQueue";
 import AddAppointment from "../pages/appointment/AddAppointment";
@@ -66,7 +65,6 @@ import AppointmentPatients from "../pages/appointment/AppointmentPatients";
 import AddPatientAppointment from "../pages/appointment/AddPatientAppointment";
 import AppointmentBilling from "../pages/appointment/AppointmentBilling";
 import AppointmentHistory from "../pages/appointment/AppointmentHistory";
-
 /* ===================================================== */
 /* CLINIC / DISPENSORY PAGES */
 /* ===================================================== */
