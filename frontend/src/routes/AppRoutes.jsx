@@ -70,7 +70,7 @@ import AppointmentHistory from "../pages/appointment/AppointmentHistory";
 /* ===================================================== */
 
 import Pharmacy from "../pages/Pharmacy";
-
+import Patient from "../pages/clinic/Patients";
 import ClinicDashboard from "../pages/clinic/ClinicDashboard";
 import NewPatientClinic from "../pages/clinic/NewPatientClinic";
 import ClinicHistory from "../pages/clinic/ClinicHistory";
@@ -534,15 +534,16 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
-          path="/clinic/new-patient"
+          path="/clinic/patients"
           element={
             <Layout>
-              <NewPatientClinic />
+              <Patient />
             </Layout>
           }
         />
+
+        
 
         <Route
           path="/clinic/history"
@@ -562,23 +563,8 @@ export default function AppRoutes() {
           }
         />
 
-        <Route
-          path="/pharmacy"
-          element={
-            <Layout>
-              <Pharmacy />
-            </Layout>
-          }
-        />
+        
 
-        <Route
-          path="/clinic/inventory"
-          element={
-            <Layout>
-              <MedicineInventory />
-            </Layout>
-          }
-        />
 
         <Route
           path="/clinic/dispense"

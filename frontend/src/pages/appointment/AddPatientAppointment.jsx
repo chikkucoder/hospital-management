@@ -179,13 +179,7 @@ export default function AddPatientAppointment() {
       {/* Breadcrumb + Header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
-            <button onClick={() => navigate("/appointment/dashboard")} className="hover:text-[#0F5C3A] transition">Dashboard</button>
-            <span>›</span>
-            <button onClick={() => navigate("/appointment/patients")} className="hover:text-[#0F5C3A] transition">Patients</button>
-            <span>›</span>
-            <span className="text-gray-600 font-medium">Add New Patient</span>
-          </div>
+          
           <h1 className="text-2xl font-black text-[#0A3E2A] tracking-tight">Add New Patient</h1>
         </div>
         <div className="flex items-center gap-3">

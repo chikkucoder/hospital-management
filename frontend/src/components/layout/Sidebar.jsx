@@ -45,10 +45,18 @@ export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
       case Role.DOCTOR:
         return [
           { name: "Doctor Dashboard", path: "/doctor/dashboard", icon: LayoutDashboard },
-          { name: "Patients", path: "/doctor/patients", icon: Users },
-          { name: "Add Prescription", path: "/doctor/prescriptions", icon: Plus },
-          { name: "Reports", path: "/doctor/reports", icon: FileText },
-          { name: "Patient History", path: "/doctor/history", icon: History },
+          {
+            name: "All Patients", path: "/doctor/patients", icon: Users},
+          {
+            name: "Patient", path: "/doctor/patients", icon: Users,
+            hasSubmenu: true,
+            submenu: [
+              { name: "Add Prescription", path: "/doctor/prescriptions", icon: Plus },
+              { name: "Reports", path: "/doctor/reports", icon: FileText },
+              { name: "Patient History", path: "/doctor/history", icon: History },
+            ],
+          },
+
         ];
 
       case Role.LAB:
@@ -78,11 +86,9 @@ export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
       case Role.CLINIC:
         return [
           { name: "Clinic Dashboard", path: "/clinic/dashboard", icon: LayoutDashboard },
-          { name: "Add medicine", path: "/clinic/add-medicine", icon: Plus },
-          { name: "Patients", path: "/clinic/patients", icon: Users },
-          { name: "Appointments", path: "/clinic/appointments", icon: Calendar },
+          { name: "Add Medicine", path: "/clinic/Patients", icon: Pill },
           { name: "Billing", path: "/clinic/billing", icon: Receipt },
-          { name: "Reports", path: "/clinic/reports", icon: BarChart3 },
+          { name: "History", path: "/clinic/history", icon: BarChart3 },
           { name: "Settings", path: "/settings", icon: Settings },
         ];
 
@@ -129,19 +135,19 @@ export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
       {/* LOGO */}
       <div className="h-20 flex items-center gap-3 px-6 border-b border-gray-100">
 
-  <img
-    src={logoBireena}
-    alt="Logo"
-    className="
+        <img
+          src={logoBireena}
+          alt="Logo"
+          className="
       h-14
       object-contain
       rounded-xl
       brightness-0
       invert
     "
-  />
+        />
 
-</div>
+      </div>
 
       {/* MENU */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto" style={{ scrollbarWidth: "none" }}>

@@ -12,37 +12,42 @@ import {
 import { motion, AnimatePresence, useScroll, useTransform } from "motion/react";
 
 // =========================================================
-// GLOBAL RESPONSIVE STYLES (with header/footer fixes)
+// GLOBAL RESPONSIVE STYLES (with improved mobile text contrast)
 // =========================================================
 const globalStyles = `
   * { margin:0; padding:0; box-sizing:border-box; }
   .animated-bg { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
   section, nav, footer { position:relative; z-index:1; }
 
-  /* ── Typography scale ── */
+  /* ── Improved Typography scale for readability on mobile ── */
   :root {
-    --fs-hero: clamp(32px, 5vw, 58px);
-    --fs-h2:   clamp(26px, 3.5vw, 46px);
-    --fs-h3:   clamp(16px, 1.8vw, 20px);
-    --fs-body: clamp(14px, 1.3vw, 17px);
-    --fs-sm:   clamp(12px, 1vw, 14px);
-    --fs-xs:   clamp(11px, 0.9vw, 13px);
+    --fs-hero: clamp(32px, 6vw, 58px);
+    --fs-h2:   clamp(26px, 4vw, 46px);
+    --fs-h3:   clamp(18px, 2.2vw, 22px);
+    --fs-body: clamp(15px, 1.5vw, 18px);
+    --fs-sm:   clamp(13px, 1.2vw, 15px);
+    --fs-xs:   clamp(12px, 1vw, 14px);
   }
 
-  /* Desktop nav links (visible on >=1025px) */
+  /* Ensure sufficient contrast on all text */
+  body {
+    color: #1e293b;
+    background-color: #f0fdf4;
+  }
+
+  /* Desktop nav links */
   .desktop-nav { display: flex; gap: 3rem; align-items: center; }
   .desktop-cta { display: flex; gap: 12px; align-items: center; }
   .hamburger-btn { display: none; background: none; border: none; cursor: pointer; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 12px; background: rgba(16,185,129,0.1); color: #10b981; transition: all 0.2s; }
   .hamburger-btn:hover { background: rgba(16,185,129,0.2); }
 
-  /* Tablet and Mobile: hide desktop nav, show hamburger */
   @media (max-width: 1024px) {
     .desktop-nav { display: none !important; }
     .desktop-cta { display: none !important; }
     .hamburger-btn { display: flex !important; }
   }
 
-  /* Grid layouts (unchanged from original) */
+  /* Responsive grids (unchanged) */
   .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
   .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
   .feat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
@@ -51,8 +56,6 @@ const globalStyles = `
   .price-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
   .test-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 48px; }
-
-  .float-cards { display: block; }
 
   @media (max-width: 1024px) {
     .feat-grid { grid-template-columns: repeat(2,1fr); }
@@ -89,6 +92,14 @@ const globalStyles = `
     .section-pad { padding: 64px 20px !important; }
     .hero-pad   { padding-top: 88px !important; padding-bottom: 48px !important; }
     .container  { padding: 0 20px !important; }
+  }
+
+  /* Additional mobile text fixes */
+  @media (max-width: 640px) {
+    h1, .hero-text { text-align: center; }
+    p, .description { text-align: center; }
+    .badge-row, .trusted-row { justify-content: center; }
+    .about-grid ul li { justify-content: center; text-align: left; }
   }
 `;
 
@@ -185,7 +196,7 @@ function FloatCard({ icon: Icon, label, value, sub, color, delay=0, style={} }) 
         animate={{y:[-8,8,-8]}}
         transition={{duration:4+delay,repeat:Infinity,ease:"easeInOut"}}
         style={{
-          background:"rgba(255,255,255,0.92)",backdropFilter:"blur(20px)",
+          background:"rgba(255,255,255,0.95)",backdropFilter:"blur(20px)",
           borderRadius:20,padding:"14px 18px",
           boxShadow:"0 20px 60px rgba(0,0,0,0.12),0 4px 16px rgba(16,185,129,0.1)",
           border:"1px solid rgba(255,255,255,0.8)",
@@ -196,7 +207,7 @@ function FloatCard({ icon: Icon, label, value, sub, color, delay=0, style={} }) 
         </div>
         <div>
           <div style={{fontSize:18,fontWeight:800,color:"#0f172a",lineHeight:1.1}}>{value}</div>
-          <div style={{fontSize:11,fontWeight:700,color:"#64748b",marginTop:2}}>{label}</div>
+          <div style={{fontSize:12,fontWeight:700,color:"#64748b",marginTop:2}}>{label}</div>
           {sub && <div style={{fontSize:10,fontWeight:600,color:"#10b981",marginTop:1}}>{sub}</div>}
         </div>
       </motion.div>
@@ -217,7 +228,6 @@ function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on resize if screen becomes desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1025 && mobileMenuOpen) {
@@ -250,7 +260,7 @@ function Navbar() {
     <>
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0.72)",
+        background: scrolled ? "rgba(255, 255, 255, 0.92)" : "rgba(255, 255, 255, 0.82)",
         backdropFilter: "blur(20px)",
         borderBottom: "1px solid rgba(16, 185, 129, 0.25)",
         boxShadow: scrolled ? "0 8px 32px rgba(0, 0, 0, 0.08)" : "0 2px 12px rgba(0, 0, 0, 0.04)",
@@ -258,7 +268,6 @@ function Navbar() {
         display: "flex", alignItems: "center", justifyContent: "space-between",
         transition: "all 0.3s ease"
       }}>
-        {/* Logo Image (only image, no text logo) */}
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <img
             src="/logo.png"
@@ -268,12 +277,11 @@ function Navbar() {
           />
         </div>
 
-        {/* Desktop Navigation Links */}
         <div className="desktop-nav">
           {navLinks.map(link => (
             <a key={link} href={`#${link.toLowerCase()}`}
               style={{
-                fontSize: "0.95rem", fontWeight: 600, color: "#1e293b",
+                fontSize: "1rem", fontWeight: 600, color: "#1e293b",
                 textDecoration: "none", transition: "all 0.2s", position: "relative",
                 paddingBottom: "4px"
               }}
@@ -288,13 +296,12 @@ function Navbar() {
           ))}
         </div>
 
-        {/* Desktop CTA */}
         <div className="desktop-cta">
-          <a href="/login" style={{ fontSize: "0.9rem", fontWeight: 700, color: "#475569", textDecoration: "none" }}>Sign In</a>
+          <a href="/login" style={{ fontSize: "0.95rem", fontWeight: 700, color: "#475569", textDecoration: "none" }}>Sign In</a>
           <motion.a href="/login" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
             style={{
               background: "linear-gradient(135deg, #10b981, #059669)", color: "white",
-              padding: "10px 24px", borderRadius: 40, fontSize: "0.9rem", fontWeight: 700,
+              padding: "10px 24px", borderRadius: 40, fontSize: "0.95rem", fontWeight: 700,
               textDecoration: "none", display: "flex", alignItems: "center", gap: 8,
               boxShadow: "0 8px 20px rgba(16,185,129,0.3)"
             }}>
@@ -302,13 +309,11 @@ function Navbar() {
           </motion.a>
         </div>
 
-        {/* Hamburger Button (visible only tablet/mobile) */}
         <button className="hamburger-btn" onClick={toggleMenu}>
           {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </nav>
 
-      {/* Mobile Slide Menu (from right) */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
@@ -318,8 +323,8 @@ function Navbar() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               style={{
-                position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)",
-                backdropFilter: "blur(4px)", zIndex: 101, cursor: "pointer"
+                position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
+                backdropFilter: "blur(6px)", zIndex: 101, cursor: "pointer"
               }}
               onClick={closeMenu}
             />
@@ -334,7 +339,7 @@ function Navbar() {
                 backdropFilter: "blur(24px)", zIndex: 102, padding: "32px 24px",
                 display: "flex", flexDirection: "column", gap: 32,
                 borderLeft: "1px solid rgba(16,185,129,0.2)",
-                boxShadow: "-8px 0 32px rgba(0,0,0,0.2)"
+                boxShadow: "-8px 0 32px rgba(0,0,0,0.3)"
               }}>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button onClick={closeMenu} style={{
@@ -350,7 +355,7 @@ function Navbar() {
                 {navLinks.map(link => (
                   <a key={link} href={`#${link.toLowerCase()}`} onClick={closeMenu}
                     style={{
-                      fontSize: "1.4rem", fontWeight: 600, color: "#f1f5f9",
+                      fontSize: "1.6rem", fontWeight: 600, color: "#f1f5f9",
                       textDecoration: "none", transition: "0.2s", display: "inline-block"
                     }}
                     onMouseEnter={(e) => e.target.style.color = "#10b981"}
@@ -373,7 +378,6 @@ function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* Add hover line effect via style injection */}
       <style>{`
         .desktop-nav a:hover .nav-hover-line { width: 100%; }
       `}</style>
@@ -382,31 +386,31 @@ function Navbar() {
 }
 
 // =========================================================
-// HERO (unchanged, matches original)
+// HERO (with improved text contrast and mobile readability)
 // =========================================================
 function Hero() {
   return (
     <section id="home" className="hero-pad section-pad" style={{paddingTop:110,paddingBottom:80,position:"relative",overflow:"hidden"}}>
-      <div className="container" style={{maxWidth:1200,margin:"0 auto",padding:"0 32px"}}>
+      <div className="container" style={{maxWidth:1200,margin:"0 auto",padding:"0 24px"}}>
         <div className="hero-grid">
           <motion.div initial={{opacity:0,x:-30}} animate={{opacity:1,x:0}} transition={{duration:0.8}}>
             <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.2}}
               style={{
                 display:"inline-flex",alignItems:"center",gap:8,
                 padding:"7px 18px",borderRadius:100,
-                background:"rgba(16,185,129,0.1)",border:"1px solid rgba(16,185,129,0.25)",
+                background:"rgba(16,185,129,0.12)",border:"1px solid rgba(16,185,129,0.3)",
                 fontSize:"var(--fs-xs)",fontWeight:800,color:"#059669",letterSpacing:"0.1em",
                 textTransform:"uppercase",marginBottom:24
               }}>
-              <Sparkles size={12} /> Intelligent Healthcare Platform
+              <Sparkles size={14} /> Intelligent Healthcare Platform
             </motion.div>
             <motion.h1 initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:0.3}}
-              style={{fontSize:"var(--fs-hero)",fontWeight:900,color:"#0f172a",lineHeight:1.05,letterSpacing:"-2px",marginBottom:20}}>
+              style={{fontSize:"var(--fs-hero)",fontWeight:900,color:"#0f172a",lineHeight:1.15,letterSpacing:"-1.5px",marginBottom:20}}>
               Simplifying Healthcare<br/>
               <span style={{color:"#10b981",fontStyle:"italic"}}>with Intelligent Care</span>
             </motion.h1>
             <motion.p initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.4}}
-              style={{fontSize:"var(--fs-body)",color:"#64748b",lineHeight:1.7,marginBottom:32,maxWidth:480}}>
+              style={{fontSize:"var(--fs-body)",color:"#334155",lineHeight:1.7,marginBottom:32,maxWidth:540}}>
               Bireena Health is an intelligent clinical platform that helps healthcare providers deliver better care, streamline workflows, and improve patient outcomes.
             </motion.p>
             <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.5}}
@@ -437,8 +441,8 @@ function Hero() {
                 {label:"Secure & Encrypted",icon:ShieldPlus},
                 {label:"Trusted by Providers",icon:Users},
               ].map(({label,icon:Icon})=>(
-                <div key={label} style={{display:"flex",alignItems:"center",gap:6,fontSize:"var(--fs-xs)",fontWeight:700,color:"#64748b"}}>
-                  <Icon size={14} color="#10b981" /> {label}
+                <div key={label} style={{display:"flex",alignItems:"center",gap:6,fontSize:"var(--fs-sm)",fontWeight:700,color:"#475569"}}>
+                  <Icon size={15} color="#10b981" /> {label}
                 </div>
               ))}
             </motion.div>
@@ -468,19 +472,19 @@ function Hero() {
               <motion.div
                 animate={{y:[-6,6,-6]}} transition={{duration:5,repeat:Infinity,ease:"easeInOut"}}
                 style={{
-                  background:"rgba(15,23,42,0.88)",backdropFilter:"blur(20px)",
+                  background:"rgba(15,23,42,0.9)",backdropFilter:"blur(20px)",
                   borderRadius:18,padding:"12px 16px",
                   border:"1px solid rgba(255,255,255,0.1)",
                   boxShadow:"0 20px 60px rgba(0,0,0,0.25)",maxWidth:200
                 }}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
                   <div style={{width:8,height:8,borderRadius:"50%",background:"#10b981",boxShadow:"0 0 8px #10b981"}} />
-                  <span style={{fontSize:10,fontWeight:800,color:"#10b981",letterSpacing:"0.1em"}}>CLINICAL ASSISTANT</span>
+                  <span style={{fontSize:11,fontWeight:800,color:"#10b981",letterSpacing:"0.1em"}}>CLINICAL ASSISTANT</span>
                 </div>
-                <p style={{fontSize:11,color:"rgba(255,255,255,0.8)",lineHeight:1.5,margin:0}}>
+                <p style={{fontSize:12,color:"rgba(255,255,255,0.85)",lineHeight:1.5,margin:0}}>
                   Patient care gap detected for Patient ID: 102026
                 </p>
-                <div style={{marginTop:8,padding:"5px 10px",borderRadius:8,background:"rgba(16,185,129,0.2)",border:"1px solid rgba(16,185,129,0.3)",fontSize:10,fontWeight:700,color:"#34d399",display:"inline-block"}}>
+                <div style={{marginTop:8,padding:"5px 10px",borderRadius:8,background:"rgba(16,185,129,0.2)",border:"1px solid rgba(16,185,129,0.3)",fontSize:11,fontWeight:700,color:"#34d399",display:"inline-block"}}>
                   View Recommendation →
                 </div>
               </motion.div>
@@ -489,15 +493,15 @@ function Hero() {
         </div>
         <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{delay:1}}
           style={{marginTop:60}}>
-          <p style={{textAlign:"center",fontSize:"var(--fs-xs)",fontWeight:800,color:"#94a3b8",letterSpacing:"0.2em",textTransform:"uppercase",marginBottom:24}}>
+          <p style={{textAlign:"center",fontSize:"var(--fs-xs)",fontWeight:800,color:"#5b6b66",letterSpacing:"0.2em",textTransform:"uppercase",marginBottom:24}}>
             Trusted by Leading Healthcare Organizations
           </p>
           <div className="trusted-row" style={{display:"flex",gap:20,justifyContent:"center",alignItems:"center",flexWrap:"wrap"}}>
             {["MedCare Hospitals","Curewell Health","HealthFirst Clinic","Wellness Group","PrimeCare Medical"].map(name=>(
               <div key={name} style={{
                 padding:"10px 20px",borderRadius:12,
-                background:"rgba(255,255,255,0.7)",border:"1px solid rgba(16,185,129,0.15)",
-                fontSize:"var(--fs-xs)",fontWeight:800,color:"#475569",
+                background:"rgba(255,255,255,0.85)",border:"1px solid rgba(16,185,129,0.2)",
+                fontSize:"var(--fs-xs)",fontWeight:800,color:"#334155",
                 backdropFilter:"blur(10px)"
               }}>
                 {name}
@@ -511,25 +515,25 @@ function Hero() {
 }
 
 // =========================================================
-// SECTION HEADING
+// SECTION HEADING (improved contrast)
 // =========================================================
 function SH({tag,title,sub}) {
   return (
     <div style={{textAlign:"center",marginBottom:60}}>
       <span style={{
         display:"inline-block",padding:"5px 18px",borderRadius:100,
-        background:"rgba(16,185,129,0.1)",color:"#059669",
+        background:"rgba(16,185,129,0.12)",color:"#059669",
         fontSize:"var(--fs-xs)",fontWeight:900,letterSpacing:"0.2em",textTransform:"uppercase",marginBottom:16
       }}>{tag}</span>
-      <h2 style={{fontSize:"var(--fs-h2)",fontWeight:900,color:"#0f172a",letterSpacing:"-1.5px",marginBottom:14,lineHeight:1.1}}>{title}</h2>
-      <p style={{fontSize:"var(--fs-body)",color:"#64748b",maxWidth:580,margin:"0 auto",lineHeight:1.7}}>{sub}</p>
+      <h2 style={{fontSize:"var(--fs-h2)",fontWeight:900,color:"#0f172a",letterSpacing:"-1.5px",marginBottom:14,lineHeight:1.2}}>{title}</h2>
+      <p style={{fontSize:"var(--fs-body)",color:"#475569",maxWidth:620,margin:"0 auto",lineHeight:1.7}}>{sub}</p>
     </div>
   );
 }
 
 // =========================================================
 // ABOUT, FEATURES, SERVICES, STATS, PRICING, TESTIMONIALS, CTA
-// (unchanged from original – they are already well written)
+// (minor contrast fixes applied)
 // =========================================================
 function About() {
   const items = [
@@ -539,29 +543,29 @@ function About() {
     {icon:Brain,text:"Patient intake and triage automation"},
   ];
   return (
-    <section id="about" className="section-pad" style={{padding:"100px 32px",background:"white"}}>
+    <section id="about" className="section-pad" style={{padding:"100px 24px",background:"white"}}>
       <div className="container" style={{maxWidth:1200,margin:"0 auto"}}>
         <div className="about-grid">
           <motion.div initial={{opacity:0,x:-30}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:0.7}}>
             <div style={{
               display:"inline-flex",alignItems:"center",gap:8,
               padding:"6px 16px",borderRadius:100,
-              background:"rgba(16,185,129,0.1)",border:"1px solid rgba(16,185,129,0.2)",
+              background:"rgba(16,185,129,0.12)",border:"1px solid rgba(16,185,129,0.25)",
               fontSize:"var(--fs-xs)",fontWeight:900,color:"#059669",letterSpacing:"0.15em",
               textTransform:"uppercase",marginBottom:24
             }}>
               <Sparkles size={12} /> What We Provide
             </div>
-            <h2 style={{fontSize:"var(--fs-h2)",fontWeight:900,color:"#0f172a",letterSpacing:"-1.5px",lineHeight:1.05,marginBottom:20}}>
+            <h2 style={{fontSize:"var(--fs-h2)",fontWeight:900,color:"#0f172a",letterSpacing:"-1.5px",lineHeight:1.2,marginBottom:20}}>
               Your 24/7 Virtual<br/><span style={{color:"#10b981"}}>Clinical Assistant</span>
             </h2>
-            <p style={{fontSize:"var(--fs-body)",color:"#64748b",lineHeight:1.7,marginBottom:36,maxWidth:480}}>
+            <p style={{fontSize:"var(--fs-body)",color:"#475569",lineHeight:1.7,marginBottom:36,maxWidth:500}}>
               Our intelligent platform works around the clock to automate clinical tasks, reduce administrative burden, and help your care teams focus on what matters most — patient care.
             </p>
             <ul style={{listStyle:"none",padding:0,margin:"0 0 36px",display:"flex",flexDirection:"column",gap:16}}>
               {items.map(({icon:Icon,text})=>(
                 <li key={text} style={{display:"flex",alignItems:"center",gap:14}}>
-                  <div style={{width:42,height:42,borderRadius:10,background:"rgba(16,185,129,0.1)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <div style={{width:42,height:42,borderRadius:10,background:"rgba(16,185,129,0.12)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                     <Icon size={18} color="#10b981" />
                   </div>
                   <span style={{fontSize:"var(--fs-body)",fontWeight:700,color:"#0f172a"}}>{text}</span>
@@ -582,16 +586,16 @@ function About() {
           <motion.div initial={{opacity:0,x:30}} whileInView={{opacity:1,x:0}} viewport={{once:true}} transition={{duration:0.7}}>
             <div style={{
               background:"white",borderRadius:28,padding:28,
-              boxShadow:"0 30px 80px rgba(0,0,0,0.1)",border:"1px solid #f1f5f9"
+              boxShadow:"0 30px 80px rgba(0,0,0,0.08)",border:"1px solid #e2e8f0"
             }}>
-              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:24,paddingBottom:16,borderBottom:"1px solid #f1f5f9"}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:24,paddingBottom:16,borderBottom:"1px solid #e2e8f0"}}>
                 <div style={{display:"flex",gap:6}}>
                   {["#f87171","#fbbf24","#34d399"].map(c=><div key={c} style={{width:10,height:10,borderRadius:"50%",background:c}} />)}
                 </div>
                 <span style={{fontSize:"var(--fs-xs)",fontWeight:800,color:"#94a3b8",letterSpacing:"0.15em",textTransform:"uppercase"}}>Clinical Intelligence Feed</span>
-                <div style={{padding:"3px 10px",borderRadius:100,background:"rgba(16,185,129,0.1)",fontSize:10,fontWeight:800,color:"#059669",border:"1px solid rgba(16,185,129,0.2)"}}>Live</div>
+                <div style={{padding:"3px 10px",borderRadius:100,background:"rgba(16,185,129,0.12)",fontSize:10,fontWeight:800,color:"#059669",border:"1px solid rgba(16,185,129,0.2)"}}>Live</div>
               </div>
-              <div style={{display:"flex",alignItems:"center",gap:10,background:"rgba(16,185,129,0.08)",borderRadius:14,padding:14,marginBottom:16,border:"1px solid rgba(16,185,129,0.2)"}}>
+              <div style={{display:"flex",alignItems:"center",gap:10,background:"rgba(16,185,129,0.08)",borderRadius:14,padding:14,marginBottom:16,border:"1px solid rgba(16,185,129,0.15)"}}>
                 <motion.div animate={{opacity:[1,0.3,1]}} transition={{duration:1.5,repeat:Infinity}}
                   style={{width:10,height:10,borderRadius:"50%",background:"#10b981",flexShrink:0}} />
                 <span style={{fontSize:"var(--fs-sm)",fontWeight:700,color:"#059669"}}>Analyzing clinical health...</span>
@@ -605,7 +609,7 @@ function About() {
                   style={{
                     display:"flex",alignItems:"flex-start",gap:14,
                     background:"white",borderRadius:16,padding:16,marginBottom:12,
-                    border:"1px solid #f1f5f9",boxShadow:"0 2px 12px rgba(0,0,0,0.04)",cursor:"pointer"
+                    border:"1px solid #e2e8f0",boxShadow:"0 2px 12px rgba(0,0,0,0.04)",cursor:"pointer"
                   }}>
                   <div style={{width:40,height:40,borderRadius:10,background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                     <Icon size={18} color={color} />
@@ -615,7 +619,7 @@ function About() {
                       <span style={{fontSize:"var(--fs-sm)",fontWeight:800,color:"#0f172a"}}>{title}</span>
                       <span style={{fontSize:10,fontWeight:600,color:"#94a3b8",whiteSpace:"nowrap"}}>{time}</span>
                     </div>
-                    <p style={{fontSize:"var(--fs-xs)",color:"#64748b",margin:0,lineHeight:1.5}}>{desc}</p>
+                    <p style={{fontSize:"var(--fs-xs)",color:"#475569",margin:0,lineHeight:1.5}}>{desc}</p>
                   </div>
                 </motion.div>
               ))}
@@ -640,7 +644,7 @@ function Features() {
     {icon:CheckCircle2,title:"Seamless Connectivity",desc:"Integrate with EHRs, labs, pharmacies, and other tools you already use.",color:"#f97316",bg:"#fff7ed"},
   ];
   return (
-    <section id="features" className="section-pad" style={{padding:"100px 32px",background:"#f8fafc"}}>
+    <section id="features" className="section-pad" style={{padding:"100px 24px",background:"#f8fafc"}}>
       <div className="container" style={{maxWidth:1200,margin:"0 auto"}}>
         <SH tag="Why Choose Us" title="Built for Modern Healthcare" sub="Powerful features that set us apart from the rest." />
         <div className="feat-grid">
@@ -651,14 +655,14 @@ function Features() {
               whileHover={{y:-8,boxShadow:"0 30px 60px rgba(0,0,0,0.12)"}}
               style={{
                 background:"white",borderRadius:24,padding:28,
-                border:"1px solid #f1f5f9",cursor:"pointer",
+                border:"1px solid #e2e8f0",cursor:"pointer",
                 boxShadow:"0 4px 20px rgba(0,0,0,0.05)",transition:"box-shadow 0.3s"
               }}>
               <div style={{width:54,height:54,borderRadius:14,background:bg,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:20}}>
                 <Icon size={26} color={color} />
               </div>
               <h3 style={{fontSize:"var(--fs-h3)",fontWeight:800,color:"#0f172a",marginBottom:10,letterSpacing:"-0.3px"}}>{title}</h3>
-              <p style={{fontSize:"var(--fs-sm)",color:"#64748b",lineHeight:1.6,marginBottom:16}}>{desc}</p>
+              <p style={{fontSize:"var(--fs-sm)",color:"#475569",lineHeight:1.6,marginBottom:16}}>{desc}</p>
               <a href="#contact" style={{fontSize:"var(--fs-xs)",fontWeight:800,color:color,textDecoration:"none",display:"flex",alignItems:"center",gap:4}}>
                 Learn more <ArrowRight size={12} />
               </a>
@@ -682,7 +686,7 @@ function Services() {
     {icon:Activity,title:"Telehealth Solutions",desc:"Built-in telehealth tools for virtual care delivery."},
   ];
   return (
-    <section id="solutions" className="section-pad" style={{padding:"100px 32px",background:"white"}}>
+    <section id="solutions" className="section-pad" style={{padding:"100px 24px",background:"white"}}>
       <div className="container" style={{maxWidth:1200,margin:"0 auto"}}>
         <SH tag="Our Solutions" title="Comprehensive Medical Services"
           sub="A complete suite of solutions to streamline operations, improve efficiency, and elevate patient experience." />
@@ -697,7 +701,7 @@ function Services() {
                 <Icon size={22} color="#10b981" />
               </div>
               <h3 style={{fontSize:"var(--fs-sm)",fontWeight:800,color:"#0f172a",marginBottom:8}}>{title}</h3>
-              <p style={{fontSize:"var(--fs-xs)",color:"#64748b",lineHeight:1.6,marginBottom:12}}>{desc}</p>
+              <p style={{fontSize:"var(--fs-xs)",color:"#475569",lineHeight:1.6,marginBottom:12}}>{desc}</p>
               <a href="#contact" style={{fontSize:"var(--fs-xs)",fontWeight:800,color:"#10b981",textDecoration:"none",display:"flex",alignItems:"center",gap:3}}>
                 Learn more <ArrowRight size={11} />
               </a>
@@ -717,15 +721,15 @@ function Stats() {
     {icon:Activity,value:"99.9%",label:"Uptime & Reliability"},
   ];
   return (
-    <div style={{background:"linear-gradient(135deg,#0f2d1f,#0a1f14)",padding:"60px 32px"}}>
+    <div style={{background:"linear-gradient(135deg,#0a2f1a,#052014)",padding:"60px 24px"}}>
       <div className="container stats-grid" style={{maxWidth:1200,margin:"0 auto"}}>
         {stats.map(({icon:Icon,value,label})=>(
           <div key={label} style={{textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
-            <div style={{width:52,height:52,borderRadius:14,background:"rgba(16,185,129,0.2)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <div style={{width:52,height:52,borderRadius:14,background:"rgba(16,185,129,0.25)",display:"flex",alignItems:"center",justifyContent:"center"}}>
               <Icon size={24} color="#10b981" />
             </div>
-            <div style={{fontSize:"clamp(28px,3vw,40px)",fontWeight:900,color:"white",letterSpacing:"-1px"}}>{value}</div>
-            <div style={{fontSize:"var(--fs-sm)",fontWeight:700,color:"rgba(255,255,255,0.55)"}}>{label}</div>
+            <div style={{fontSize:"clamp(32px,4vw,44px)",fontWeight:900,color:"white",letterSpacing:"-1px"}}>{value}</div>
+            <div style={{fontSize:"var(--fs-sm)",fontWeight:700,color:"rgba(255,255,255,0.65)"}}>{label}</div>
           </div>
         ))}
       </div>
@@ -741,8 +745,8 @@ function Pricing() {
     {name:"Enterprise",desc:"For large organizations",mo:null,yr:null,feats:["Unlimited patients","Custom integrations","Dedicated Support"]},
   ];
   return (
-    <section id="pricing" className="section-pad" style={{padding:"100px 32px",background:"#f8fafc"}}>
-      <div className="container" style={{maxWidth:1000,margin:"0 auto"}}>
+    <section id="pricing" className="section-pad" style={{padding:"100px 24px",background:"#f8fafc"}}>
+      <div className="container" style={{maxWidth:1100,margin:"0 auto"}}>
         <SH tag="Pricing" title="Simple, Transparent Pricing"
           sub="Transparent pricing with no hidden fees. Scale effortlessly as your practice grows." />
         <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:16,marginBottom:48}}>
@@ -761,7 +765,7 @@ function Pricing() {
           {plans.map(({name,desc,mo,yr,feats,popular})=>(
             <motion.div key={name} whileHover={{y:-8}}
               style={{
-                background:popular?"linear-gradient(135deg,#0f2d1f,#0a3d21)":"white",
+                background:popular?"linear-gradient(135deg,#0a2f1a,#052c18)":"white",
                 borderRadius:24,padding:32,
                 border:popular?"none":"1px solid #e2e8f0",
                 boxShadow:popular?"0 30px 80px rgba(16,185,129,0.25)":"0 4px 20px rgba(0,0,0,0.05)",
@@ -769,12 +773,12 @@ function Pricing() {
               }}>
               {popular && <div style={{position:"absolute",top:16,right:16,padding:"4px 12px",borderRadius:100,background:"rgba(16,185,129,0.3)",color:"#34d399",fontSize:10,fontWeight:900,border:"1px solid rgba(16,185,129,0.4)"}}>Most Popular</div>}
               <h3 style={{fontSize:"var(--fs-xs)",fontWeight:900,color:popular?"#6ee7b7":"#94a3b8",letterSpacing:"0.15em",textTransform:"uppercase",marginBottom:4}}>{name}</h3>
-              <p style={{fontSize:"var(--fs-xs)",color:popular?"rgba(255,255,255,0.5)":"#94a3b8",marginBottom:20}}>{desc}</p>
+              <p style={{fontSize:"var(--fs-xs)",color:popular?"rgba(255,255,255,0.6)":"#64748b",marginBottom:20}}>{desc}</p>
               <div style={{marginBottom:28}}>
                 {mo ? (
                   <>
                     <span style={{fontSize:"clamp(32px,4vw,44px)",fontWeight:900,color:popular?"white":"#0f172a",letterSpacing:"-1px"}}>${yearly?yr:mo}</span>
-                    <span style={{fontSize:"var(--fs-xs)",color:popular?"rgba(255,255,255,0.4)":"#94a3b8",marginLeft:4}}>/month</span>
+                    <span style={{fontSize:"var(--fs-xs)",color:popular?"rgba(255,255,255,0.5)":"#94a3b8",marginLeft:4}}>/month</span>
                   </>
                 ) : (
                   <span style={{fontSize:"clamp(28px,3.5vw,38px)",fontWeight:900,color:popular?"white":"#0f172a"}}>Custom</span>
@@ -782,7 +786,7 @@ function Pricing() {
               </div>
               <ul style={{listStyle:"none",padding:0,margin:"0 0 28px",display:"flex",flexDirection:"column",gap:10}}>
                 {feats.map(f=>(
-                  <li key={f} style={{display:"flex",alignItems:"center",gap:10,fontSize:"var(--fs-sm)",fontWeight:600,color:popular?"rgba(255,255,255,0.8)":"#475569"}}>
+                  <li key={f} style={{display:"flex",alignItems:"center",gap:10,fontSize:"var(--fs-sm)",fontWeight:600,color:popular?"rgba(255,255,255,0.85)":"#475569"}}>
                     <CheckCircle2 size={15} color="#10b981" /> {f}
                   </li>
                 ))}
@@ -812,7 +816,7 @@ function Testimonials() {
     {name:"Sarah Mitchell",role:"Practice Administrator",stars:5,text:"A must-have platform for any modern healthcare organization."},
   ];
   return (
-    <section className="section-pad" style={{padding:"100px 32px",background:"white"}}>
+    <section className="section-pad" style={{padding:"100px 24px",background:"white"}}>
       <div className="container" style={{maxWidth:1200,margin:"0 auto"}}>
         <SH tag="What Our Clients Say" title="Loved by Healthcare Professionals"
           sub="Trusted by thousands of healthcare providers across the country." />
@@ -834,7 +838,7 @@ function Testimonials() {
                 </div>
                 <div>
                   <div style={{fontSize:"var(--fs-sm)",fontWeight:800,color:"#0f172a"}}>{name}</div>
-                  <div style={{fontSize:"var(--fs-xs)",fontWeight:600,color:"#94a3b8"}}>{role}</div>
+                  <div style={{fontSize:"var(--fs-xs)",fontWeight:600,color:"#64748b"}}>{role}</div>
                 </div>
               </div>
             </motion.div>
@@ -847,23 +851,23 @@ function Testimonials() {
 
 function CTA() {
   return (
-    <section id="contact" className="section-pad" style={{padding:"100px 32px",background:"linear-gradient(135deg,#0a1f14,#0f2d1f)",overflow:"hidden",position:"relative"}}>
-      <div style={{position:"absolute",top:"20%",left:"-5%",width:500,height:500,background:"rgba(16,185,129,0.08)",borderRadius:"50%",filter:"blur(120px)"}} />
-      <div style={{position:"absolute",bottom:"20%",right:"-5%",width:500,height:500,background:"rgba(6,182,212,0.07)",borderRadius:"50%",filter:"blur(120px)"}} />
+    <section id="contact" className="section-pad" style={{padding:"100px 24px",background:"linear-gradient(135deg,#0a2f1a,#031a0e)",overflow:"hidden",position:"relative"}}>
+      <div style={{position:"absolute",top:"20%",left:"-5%",width:500,height:500,background:"rgba(16,185,129,0.1)",borderRadius:"50%",filter:"blur(120px)"}} />
+      <div style={{position:"absolute",bottom:"20%",right:"-5%",width:500,height:500,background:"rgba(6,182,212,0.08)",borderRadius:"50%",filter:"blur(120px)"}} />
       <div className="container" style={{maxWidth:1000,margin:"0 auto",textAlign:"center",position:"relative",zIndex:1}}>
         <div style={{
           display:"inline-flex",alignItems:"center",gap:8,marginBottom:24,
           padding:"6px 18px",borderRadius:100,
-          background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.1)",
+          background:"rgba(255,255,255,0.08)",border:"1px solid rgba(255,255,255,0.15)",
           fontSize:"var(--fs-xs)",fontWeight:800,color:"#34d399",letterSpacing:"0.15em",textTransform:"uppercase"
         }}>
           <Sparkles size={12} /> Get Started Today
         </div>
-        <h2 style={{fontSize:"clamp(30px,5vw,56px)",fontWeight:900,color:"white",letterSpacing:"-2px",lineHeight:1.1,marginBottom:16}}>
+        <h2 style={{fontSize:"clamp(32px,6vw,56px)",fontWeight:900,color:"white",letterSpacing:"-2px",lineHeight:1.2,marginBottom:16}}>
           Ready to Transform<br/>
           <span style={{color:"#10b981"}}>Your Practice?</span>
         </h2>
-        <p style={{fontSize:"var(--fs-body)",color:"rgba(255,255,255,0.5)",marginBottom:48,maxWidth:520,margin:"0 auto 48px"}}>
+        <p style={{fontSize:"var(--fs-body)",color:"rgba(255,255,255,0.65)",marginBottom:48,maxWidth:560,margin:"0 auto 48px"}}>
           Join thousands of healthcare providers already using Bireena Health to deliver smarter, better care.
         </p>
         <div className="cta-btns" style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
@@ -883,7 +887,7 @@ function CTA() {
               padding:"16px 32px",borderRadius:14,
               background:"rgba(255,255,255,0.08)",
               color:"white",fontSize:"var(--fs-body)",fontWeight:800,textDecoration:"none",
-              border:"1px solid rgba(255,255,255,0.15)"
+              border:"1px solid rgba(255,255,255,0.2)"
             }}>
             <Calendar size={16} /> Book a Demo
           </motion.a>
@@ -894,50 +898,48 @@ function CTA() {
 }
 
 // =========================================================
-// FOOTER — Fixed: only logo image, dark gradient, 4 columns, social icons
+// FOOTER — fixed contrast and mobile readability
 // =========================================================
 function Footer() {
   return (
     <footer style={{
       background: "radial-gradient(ellipse at 30% 20%, #0a0f1c, #020408)",
       borderTop: "1px solid rgba(16,185,129,0.2)",
-      padding: "70px 32px 32px"
+      padding: "70px 24px 32px"
     }}>
       <div className="container" style={{ maxWidth: 1200, margin: "0 auto" }}>
         <div className="footer-grid">
-          {/* Logo/About column – only logo image, no text logo */}
           <div>
             <div style={{ marginBottom: 20 }}>
               <img
-  src="/logo.png"
-  alt="Bireena Health"
-  style={{
-    height: 56,
-    width: "auto",
-    objectFit: "contain",
-    filter: "brightness(0) invert(1)" // converts logo to white
-  }}
-  onError={(e) => {
-    e.target.style.display = "none";
-    e.target.parentElement.innerHTML = `
-      <div style="width:56px;height:56px;background:linear-gradient(135deg,#10b981,#059669);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7 7-7z"/>
-        </svg>
-      </div>
-    `;
-  }}
-/>
+                src="/logo.png"
+                alt="Bireena Health"
+                style={{
+                  height: 56,
+                  width: "auto",
+                  objectFit: "contain",
+                  filter: "brightness(0) invert(1)"
+                }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  e.target.parentElement.innerHTML = `
+                    <div style="width:56px;height:56px;background:linear-gradient(135deg,#10b981,#059669);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7 7-7z"/>
+                      </svg>
+                    </div>
+                  `;
+                }}
+              />
             </div>
             <p style={{
-              fontSize: "var(--fs-xs)", color: "rgba(255,255,255,0.5)",
+              fontSize: "var(--fs-xs)", color: "rgba(255,255,255,0.6)",
               lineHeight: 1.7, marginBottom: 24, maxWidth: 280
             }}>
               Intelligent healthcare platform empowering providers with AI-driven insights and seamless workflows.
             </p>
           </div>
 
-          {/* Product Links */}
           <div>
             <h4 style={{
               fontSize: "var(--fs-xs)", fontWeight: 800, color: "white",
@@ -954,10 +956,10 @@ function Footer() {
               {["Features", "Solutions", "Pricing", "Integrations"].map(item => (
                 <li key={item}>
                   <a href={`#${item.toLowerCase()}`} style={{
-                    fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.6)",
+                    fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.65)",
                     textDecoration: "none", transition: "all 0.2s"
                   }} onMouseEnter={e => e.target.style.color = "#10b981"}
-                     onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}>
+                     onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.65)"}>
                     {item}
                   </a>
                 </li>
@@ -965,7 +967,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Company Links */}
           <div>
             <h4 style={{
               fontSize: "var(--fs-xs)", fontWeight: 800, color: "white",
@@ -982,10 +983,10 @@ function Footer() {
               {["About Us", "Careers", "Blog", "Press Kit"].map(item => (
                 <li key={item}>
                   <a href={`#${item.toLowerCase().replace(" ", "")}`} style={{
-                    fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.6)",
+                    fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.65)",
                     textDecoration: "none", transition: "all 0.2s"
                   }} onMouseEnter={e => e.target.style.color = "#10b981"}
-                     onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.6)"}>
+                     onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.65)"}>
                     {item}
                   </a>
                 </li>
@@ -993,7 +994,6 @@ function Footer() {
             </ul>
           </div>
 
-          {/* Contact Info + Social Icons with hover glow */}
           <div>
             <h4 style={{
               fontSize: "var(--fs-xs)", fontWeight: 800, color: "white",
@@ -1031,7 +1031,7 @@ function Footer() {
                   transition={{ type: "spring", stiffness: 400 }}
                   style={{
                     width: 40, height: 40, borderRadius: 40,
-                    background: "rgba(255,255,255,0.05)",
+                    background: "rgba(255,255,255,0.08)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     color: "rgba(255,255,255,0.7)",
                     transition: "all 0.2s",
@@ -1043,7 +1043,7 @@ function Footer() {
                     e.currentTarget.style.boxShadow = "0 0 12px #10b981";
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                    e.currentTarget.style.background = "rgba(255,255,255,0.08)";
                     e.currentTarget.style.color = "rgba(255,255,255,0.7)";
                     e.currentTarget.style.boxShadow = "none";
                   }}
@@ -1055,23 +1055,22 @@ function Footer() {
           </div>
         </div>
 
-        {/* Footer bottom: copyright left, legal links right, centered on mobile */}
         <div className="footer-bottom" style={{
           paddingTop: 32, marginTop: 32,
           borderTop: "1px solid rgba(255,255,255,0.08)",
           display: "flex", justifyContent: "space-between", alignItems: "center",
           flexWrap: "wrap", gap: 16
         }}>
-          <p style={{ fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.4)" }}>
+          <p style={{ fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.45)" }}>
             © 2026 Bireena Health. All rights reserved.
           </p>
           <div className="footer-links" style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
             {["Privacy Policy", "Terms of Service", "Cookie Preferences"].map(link => (
               <a key={link} href="#contact" style={{
-                fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.4)",
+                fontSize: "var(--fs-xs)", fontWeight: 500, color: "rgba(255,255,255,0.45)",
                 textDecoration: "none", transition: "color 0.2s"
               }} onMouseEnter={e => e.target.style.color = "#10b981"}
-                 onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.4)"}>
+                 onMouseLeave={e => e.target.style.color = "rgba(255,255,255,0.45)"}>
                 {link}
               </a>
             ))}
@@ -1087,7 +1086,7 @@ function Footer() {
 // =========================================================
 export default function Landing() {
   return (
-    <div style={{ fontFamily: "'Segoe UI', system-ui, sans-serif", position: "relative", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif", position: "relative", overflowX: "hidden" }}>
       <style>{globalStyles}</style>
       <AnimatedBackground />
       <Navbar />
