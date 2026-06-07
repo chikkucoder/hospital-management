@@ -23,6 +23,7 @@ import DoctorsManagement from "../pages/admin/DoctorsManagement";
 import AdminAnalytics from "../pages/admin/AdminAnalytics";
 import UserManagement from "../pages/admin/UserManagement";
 import UserRoleManagement from "../pages/admin/UserRoleManagement";
+import UserAdd from "../pages/admin/UserAdd"; 
 
 import Patients from "../pages/patient/PatientList";
 import PatientProfile from "../pages/patient/PatientProfile";
@@ -65,6 +66,7 @@ import AppointmentPatients from "../pages/appointment/AppointmentPatients";
 import AddPatientAppointment from "../pages/appointment/AddPatientAppointment";
 import AppointmentBilling from "../pages/appointment/AppointmentBilling";
 import AppointmentHistory from "../pages/appointment/AppointmentHistory";
+
 /* ===================================================== */
 /* CLINIC / DISPENSORY PAGES */
 /* ===================================================== */
@@ -88,22 +90,16 @@ function RoleBasedDashboard() {
   const { user } = useAuth();
 
   switch (user?.role) {
-
     case Role.ADMIN:
       return <Navigate to="/admin/dashboard" replace />;
-
     case Role.DOCTOR:
       return <Navigate to="/doctor/dashboard" replace />;
-
     case Role.LAB:
       return <Navigate to="/lab/dashboard" replace />;
-
     case Role.APPOINTMENT:
       return <Navigate to="/appointment/dashboard" replace />;
-
     case Role.CLINIC:
       return <Navigate to="/clinic/dashboard" replace />;
-
     default:
       return <Navigate to="/unauthorized" replace />;
   }
@@ -115,19 +111,13 @@ function RoleBasedDashboard() {
 
 const ComingSoon = ({ title }) => (
   <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 bg-white rounded-[3rem] shadow-sm border border-gray-100">
-
     <div className="w-24 h-24 bg-emerald-50 rounded-[2.5rem] flex items-center justify-center mb-6">
       <div className="w-12 h-12 bg-emerald-600 rounded-2xl animate-pulse" />
     </div>
-
-    <h1 className="text-3xl font-bold text-[#06402B] mb-2">
-      {title}
-    </h1>
-
+    <h1 className="text-3xl font-bold text-[#06402B] mb-2">{title}</h1>
     <p className="text-gray-500 font-medium">
       This module is currently being optimized for your workflow.
     </p>
-
   </div>
 );
 
@@ -138,18 +128,11 @@ const ComingSoon = ({ title }) => (
 export default function AppRoutes() {
   return (
     <Routes>
-
-      {/* ===================================================== */}
-      {/* PUBLIC ROUTES */}
-      {/* ===================================================== */}
-
+      {/* ========== PUBLIC ROUTES ========== */}
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
 
-      {/* ===================================================== */}
-      {/* SHARED AUTH ROUTES */}
-      {/* ===================================================== */}
-
+      {/* ========== SHARED AUTH ROUTES (accessible to all logged-in users) ========== */}
       <Route
         element={
           <RoleGuard
@@ -163,14 +146,7 @@ export default function AppRoutes() {
           />
         }
       >
-
-        {/* SINGLE DASHBOARD ROUTE */}
-
-        <Route
-          path="/dashboard"
-          element={<RoleBasedDashboard />}
-        />
-
+        <Route path="/dashboard" element={<RoleBasedDashboard />} />
         <Route
           path="/settings"
           element={
@@ -179,7 +155,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/profile"
           element={
@@ -188,19 +163,10 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
       </Route>
 
-      {/* ===================================================== */}
-      {/* ADMIN ROUTES */}
-      {/* ===================================================== */}
-
-      <Route
-        element={
-          <RoleGuard allowedRoles={[Role.ADMIN]} />
-        }
-      >
-
+      {/* ========== ADMIN ROUTES (Admin only) ========== */}
+      <Route element={<RoleGuard allowedRoles={[Role.ADMIN]} />}>
         <Route
           path="/admin/dashboard"
           element={
@@ -225,7 +191,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/admin/doctors"
           element={
@@ -234,7 +199,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/admin/analytics"
           element={
@@ -243,7 +207,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/admin/users"
           element={
@@ -252,7 +215,14 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
+        <Route
+          path="/admin/users/add"      // 👈 NEW: Add user form
+          element={
+            <Layout>
+              <UserAdd />
+            </Layout>
+          }
+        />
         <Route
           path="/admin/roles"
           element={
@@ -261,7 +231,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/patients"
           element={
@@ -270,7 +239,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/patients/:id"
           element={
@@ -279,7 +247,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointments"
           element={
@@ -288,7 +255,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/billing"
           element={
@@ -297,7 +263,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/emr"
           element={
@@ -306,19 +271,42 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
+        <Route
+          path="/clinic/patients"
+          element={
+            <Layout>
+              <Patient />
+            </Layout>
+          }
+        />
+        <Route
+          path="/clinic/history"
+          element={
+            <Layout>
+              <ClinicHistory />
+            </Layout>
+          }
+        />
+        <Route
+          path="/clinic/billing"
+          element={
+            <Layout>
+              <ClinicBilling />
+            </Layout>
+          }
+        />
+        <Route
+          path="/clinic/dispense"
+          element={
+            <Layout>
+              <MedicineDispense />
+            </Layout>
+          }
+        />
       </Route>
 
-      {/* ===================================================== */}
-      {/* DOCTOR ROUTES */}
-      {/* ===================================================== */}
-
-      <Route
-        element={
-          <RoleGuard allowedRoles={[Role.DOCTOR]} />
-        }
-      >
-
+      {/* ========== DOCTOR ROUTES (Doctor + Admin) ========== */}
+      <Route element={<RoleGuard allowedRoles={[Role.DOCTOR, Role.ADMIN]} />}>
         <Route
           path="/doctor/dashboard"
           element={
@@ -327,7 +315,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/doctor/patients"
           element={
@@ -336,7 +323,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/doctor/patients/:id"
           element={
@@ -345,7 +331,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/doctor/prescriptions"
           element={
@@ -354,7 +339,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/doctor/reports"
           element={
@@ -363,7 +347,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/doctor/history"
           element={
@@ -372,19 +355,10 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
       </Route>
 
-      {/* ===================================================== */}
-      {/* LAB ROUTES */}
-      {/* ===================================================== */}
-
-      <Route
-        element={
-          <RoleGuard allowedRoles={[Role.LAB]} />
-        }
-      >
-
+      {/* ========== LAB ROUTES (Lab + Admin) ========== */}
+      <Route element={<RoleGuard allowedRoles={[Role.LAB, Role.ADMIN]} />}>
         <Route
           path="/lab/dashboard"
           element={
@@ -393,7 +367,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/lab"
           element={
@@ -402,7 +375,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/lab/reports"
           element={
@@ -411,7 +383,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/lab/upload"
           element={
@@ -420,7 +391,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/lab/pending"
           element={
@@ -429,19 +399,10 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
       </Route>
 
-      {/* ===================================================== */}
-      {/* APPOINTMENT ROUTES */}
-      {/* ===================================================== */}
-
-      <Route
-        element={
-          <RoleGuard allowedRoles={[Role.APPOINTMENT]} />
-        }
-      >
-
+      {/* ========== APPOINTMENT ROUTES (Appointment + Admin) ========== */}
+      <Route element={<RoleGuard allowedRoles={[Role.APPOINTMENT, Role.ADMIN]} />}>
         <Route
           path="/appointment/dashboard"
           element={
@@ -450,7 +411,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointment/add"
           element={
@@ -459,7 +419,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointment/patients"
           element={
@@ -468,7 +427,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointment/add-patient"
           element={
@@ -477,7 +435,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointment/billing"
           element={
@@ -486,7 +443,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointment/history"
           element={
@@ -495,7 +451,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointment/scheduler"
           element={
@@ -504,7 +459,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/appointment/queue"
           element={
@@ -513,19 +467,10 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
       </Route>
 
-      {/* ===================================================== */}
-      {/* CLINIC ROUTES */}
-      {/* ===================================================== */}
-
-      <Route
-        element={
-          <RoleGuard allowedRoles={[Role.CLINIC]} />
-        }
-      >
-
+      {/* ========== CLINIC ROUTES (Clinic + Admin) ========== */}
+      <Route element={<RoleGuard allowedRoles={[Role.CLINIC, Role.ADMIN]} />}>
         <Route
           path="/clinic/dashboard"
           element={
@@ -542,9 +487,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
-        
-
         <Route
           path="/clinic/history"
           element={
@@ -553,7 +495,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
         <Route
           path="/clinic/billing"
           element={
@@ -562,10 +503,6 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
-        
-
-
         <Route
           path="/clinic/dispense"
           element={
@@ -574,53 +511,32 @@ export default function AppRoutes() {
             </Layout>
           }
         />
-
       </Route>
 
-      {/* ===================================================== */}
-      {/* UNAUTHORIZED */}
-      {/* ===================================================== */}
-
+      {/* ========== UNAUTHORIZED ========== */}
       <Route
         path="/unauthorized"
         element={
           <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white">
-
-            <h1 className="text-9xl font-black text-emerald-50 mb-4 select-none">
-              403
-            </h1>
-
+            <h1 className="text-9xl font-black text-emerald-50 mb-4 select-none">403</h1>
             <div className="text-center relative -top-16">
-
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                Access Restricted
-              </h2>
-
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Restricted</h2>
               <p className="text-gray-500 mb-8 max-w-sm">
                 You do not have permission to access this module.
               </p>
-
               <button
                 onClick={() => window.history.back()}
                 className="h-12 px-8 bg-emerald-600 text-white rounded-2xl font-bold shadow-xl shadow-emerald-600/20 hover:scale-105 transition-transform"
               >
                 Go Back
               </button>
-
             </div>
           </div>
         }
       />
 
-      {/* ===================================================== */}
-      {/* FALLBACK */}
-      {/* ===================================================== */}
-
-      <Route
-        path="*"
-        element={<Navigate to="/" replace />}
-      />
-
+      {/* ========== FALLBACK ========== */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

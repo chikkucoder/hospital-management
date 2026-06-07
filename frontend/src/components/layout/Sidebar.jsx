@@ -89,7 +89,6 @@ export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
           { name: "Add Medicine", path: "/clinic/Patients", icon: Pill },
           { name: "Billing", path: "/clinic/billing", icon: Receipt },
           { name: "History", path: "/clinic/history", icon: BarChart3 },
-          { name: "Settings", path: "/settings", icon: Settings },
         ];
 
       case Role.ADMIN:
@@ -106,7 +105,7 @@ export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
             icon: Pill,
             hasSubmenu: true,
             submenu: [
-              { name: "Medicine Inventory", path: "/clinic/inventory" },
+              { name: "Medicine Inventory", path: "/clinic/dashboard" },
               { name: "Add Medicine", path: "/clinic/add-medicine" },
             ],
           },
