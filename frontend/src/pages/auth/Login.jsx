@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate, Link } from "react-router-dom";
 import {
+  Mail,
   Lock,
   Loader2,
   AlertCircle,
@@ -11,62 +12,89 @@ import {
   User as UserIcon,
   FlaskConical,
   Pill,
-  Calendar,
-  Eye,
-  EyeOff,
 } from "lucide-react";
+
+import { Button } from "../../components/common/Button";
 import { useAuth } from "../../hooks/useAuth";
+
+const logoBireena = "/src/assets/logobireena.jpeg";
+
 import "./Login.css";
 
-const logoBireena = "/src/assets/logo.png";
-
-const ROLES = [
-  { key: "Admin",                   label: "Admin Portal",        icon: ShieldCheck },
-  { key: "Doctor",                  label: "Doctor Portal",       icon: Stethoscope },
-  { key: "Lab Assistant",           label: "Lab Assistant Portal",icon: FlaskConical },
-  { key: "Appointment",             label: "Appointment Portal",  icon: Calendar },
-  { key: "Dispensory / Clinicians", label: "Dispensory Portal",   icon: Pill },
-];
-
-const getDemoCredentials = (r) => {
-  const map = {
-    "Admin":                   { email: "admin.medico",       password: "medicouseradmin" },
-    "Doctor":                  { email: "doctor.medico",      password: "medicouserdoctor" },
-    "Lab Assistant":           { email: "lab.medico",         password: "medicouserlab" },
-    "Appointment":             { email: "appointment.medico", password: "medicouserappointment" },
-    "Dispensory / Clinicians": { email: "clinic.medico",      password: "medicouserclinic" },
-  };
-  return map[r] || { email: "", password: "" };
-};
-
 export default function Login() {
-  const [role, setRole]               = useState("Admin");
+  const [role, setRole] = useState("Admin");
   const [showDropdown, setShowDropdown] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail]             = useState("admin.medico");
-  const [password, setPassword]       = useState("medicouseradmin");
-  const [error, setError]             = useState("");
+
+  // Demo credentials for different users
+  const getDemoCredentials = (selectedRole) => {
+    switch (selectedRole) {
+      case "Admin":
+        return {
+          email: "admin.medico",
+          password: "medicouseradmin",
+        };
+
+      case "Doctor":
+        return {
+          email: "doctor.medico",
+          password: "medicouserdoctor",
+        };
+
+      case "Lab Assistant":
+        return {
+          email: "lab.medico",
+          password: "medicouserlab",
+        };
+
+      case "Appointment":
+        return {
+          email: "appointment.medico",
+          password: "medicouserappointment",
+        };
+
+      case "Dispensory / Clinicians":
+        return {
+          email: "clinic.medico",
+          password: "medicouserclinic",
+        };
+
+      default:
+        return {
+          email: "",
+          password: "",
+        };
+    }
+  };
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const { login, user: authenticatedUser } = useAuth();
 
   useEffect(() => {
-    if (authenticatedUser) navigate("/dashboard");
+    if (authenticatedUser) {
+      navigate("/dashboard");
+    }
   }, [authenticatedUser, navigate]);
 
-  const handleRoleSelect = (r) => {
-    setRole(r);
-    const c = getDemoCredentials(r);
-    setEmail(c.email);
-    setPassword(c.password);
+  const handleRoleSelect = (selectedRole) => {
+    setRole(selectedRole);
+    const creds = getDemoCredentials(selectedRole);
+    setEmail(creds.email);
+    setPassword(creds.password);
     setShowDropdown(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError("");
     setIsSubmitting(true);
+
     try {
       await login({ email, password });
       navigate("/dashboard");
@@ -77,285 +105,266 @@ export default function Login() {
     }
   };
 
-  const selectedRole = ROLES.find((r) => r.key === role);
-  const SelectedIcon = selectedRole?.icon || ShieldCheck;
+  // Role icons
+  const roleIcons = {
+    Admin: ShieldCheck,
+    Doctor: Stethoscope,
+    "Lab Assistant": FlaskConical,
+    Appointment: UserIcon,
+    "Dispensory / Clinicians": Pill,
+  };
+
+  const SelectedIcon = roleIcons[role];
   const demoCreds = getDemoCredentials(role);
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden"
-      style={{ backgroundColor: "#eef7f2" }}
-    >
-
-      {/* ── BACKGROUND DECORATION ── */}
-
-      {/* Subtle hex grid overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.18]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92' viewBox='0 0 80 92'%3E%3Cpolygon points='40,2 78,22 78,62 40,82 2,62 2,22' fill='none' stroke='%2334a86a' stroke-width='1'/%3E%3C/svg%3E")`,
-          backgroundSize: "90px 104px",
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Plus cross marks */}
-      {[
-        { top: "8%", left: "18%", size: 22 },
-        { top: "26%", left: "6%", size: 16 },
-        { top: "14%", right: "14%", size: 20 },
-        { top: "38%", right: "5%", size: 14 },
-        { bottom: "22%", left: "10%", size: 16 },
-        { bottom: "10%", right: "18%", size: 18 },
-      ].map((s, i) => (
-        <svg
-          key={i}
-          className="absolute pointer-events-none opacity-30"
-          style={{ top: s.top, left: s.left, right: s.right, bottom: s.bottom, width: s.size, height: s.size }}
-          viewBox="0 0 20 20" fill="none" aria-hidden="true"
-        >
-          <line x1="10" y1="0" x2="10" y2="20" stroke="#2d8a55" strokeWidth="2" strokeLinecap="round"/>
-          <line x1="0" y1="10" x2="20" y2="10" stroke="#2d8a55" strokeWidth="2" strokeLinecap="round"/>
-        </svg>
-      ))}
-
-      {/* Dot clusters */}
-      {[
-        { top: "32%", left: "8%" },
-        { bottom: "30%", right: "6%" },
-      ].map((pos, i) => (
-        <div key={i} className="absolute pointer-events-none opacity-25" style={pos} aria-hidden="true">
-          <div className="grid grid-cols-4 gap-1.5">
-            {Array.from({ length: 16 }).map((_, j) => (
-              <div key={j} className="w-1 h-1 rounded-full" style={{ backgroundColor: "#3a9e62" }} />
-            ))}
-          </div>
-        </div>
-      ))}
-
-      {/* LEFT large leaf */}
-      <div className="fixed left-0 bottom-0 w-72 h-96 pointer-events-none opacity-60" aria-hidden="true">
-        <svg viewBox="0 0 280 380" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-          {/* stem */}
-          <path d="M60 370 Q80 260 160 180" stroke="#6abf8a" strokeWidth="3" strokeLinecap="round" fill="none"/>
-          {/* big leaf 1 */}
-          <ellipse cx="100" cy="290" rx="70" ry="28" fill="#a8d8b9" opacity="0.7" transform="rotate(-40 100 290)"/>
-          {/* big leaf 2 */}
-          <ellipse cx="140" cy="230" rx="80" ry="30" fill="#7ec99a" opacity="0.65" transform="rotate(-55 140 230)"/>
-          {/* big leaf 3 */}
-          <ellipse cx="80" cy="340" rx="60" ry="22" fill="#b8e2c8" opacity="0.5" transform="rotate(-25 80 340)"/>
-          {/* wave blob bottom */}
-          <path d="M0 340 Q60 300 130 330 Q180 350 280 310 L280 380 L0 380Z" fill="#b8e4c9" opacity="0.5"/>
-          <path d="M0 360 Q80 330 160 350 Q220 365 280 340 L280 380 L0 380Z" fill="#d0eedb" opacity="0.6"/>
-        </svg>
-      </div>
-
-      {/* RIGHT large leaf */}
-      <div className="fixed right-0 bottom-0 w-72 h-96 pointer-events-none opacity-60" aria-hidden="true">
-        <svg viewBox="0 0 280 380" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-          <path d="M220 370 Q200 260 120 180" stroke="#6abf8a" strokeWidth="3" strokeLinecap="round" fill="none"/>
-          <ellipse cx="180" cy="290" rx="70" ry="28" fill="#a8d8b9" opacity="0.7" transform="rotate(40 180 290)"/>
-          <ellipse cx="140" cy="230" rx="80" ry="30" fill="#7ec99a" opacity="0.65" transform="rotate(55 140 230)"/>
-          <ellipse cx="200" cy="340" rx="60" ry="22" fill="#b8e2c8" opacity="0.5" transform="rotate(25 200 340)"/>
-          <path d="M280 340 Q220 300 150 330 Q100 350 0 310 L0 380 L280 380Z" fill="#b8e4c9" opacity="0.5"/>
-          <path d="M280 360 Q200 330 120 350 Q60 365 0 340 L0 380 L280 380Z" fill="#d0eedb" opacity="0.6"/>
-        </svg>
-      </div>
-
-      {/* Bottom wave */}
-      <div className="fixed bottom-0 left-0 right-0 pointer-events-none opacity-40" aria-hidden="true">
-        <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-          <path d="M0 60 Q360 0 720 60 Q1080 120 1440 60 L1440 120 L0 120Z" fill="#a8d8b9" opacity="0.5"/>
-          <path d="M0 80 Q400 30 800 80 Q1100 120 1440 70 L1440 120 L0 120Z" fill="#c5e8d2" opacity="0.5"/>
-        </svg>
-      </div>
-
-      {/* ── LOGO ── */}
+    <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] relative text-primary-dark">
+      
+      {/* HEADER / LOGO */}
       <motion.div
-        initial={{ opacity: 0, y: -16 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="relative z-10 mb-8"
+        className="flex flex-col items-center gap-4 mb-10 group cursor-pointer"
       >
-        <Link to="/">
+        <Link
+          to="/"
+          className="transition-transform hover:-translate-y-2 duration-300"
+        >
           <img
             src={logoBireena}
-            alt="Bireena Medico"
-            className="h-16 object-contain"
+            alt="Logo"
+            className="w-80 object-contain rounded-xl"
           />
         </Link>
       </motion.div>
 
-      {/* ── LOGIN CARD ── */}
+      {/* LOGIN CARD */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, delay: 0.05 }}
-        className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl border border-white overflow-hidden"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md glass rounded-[2.5rem] shadow-2xl shadow-primary-dark/5 border border-white/20 overflow-hidden"
       >
-        <div className="px-10 pt-10 pb-6">
-
-          {/* Welcome header */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome Back</h2>
-            <p className="text-sm text-gray-400">Sign in to continue to your account</p>
-          </div>
+        <div className="p-8 pb-4">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6 font-sans">
+            Login
+          </h2>
 
           {/* ROLE SELECTOR */}
-          <div className="relative mb-5">
+          <div className="relative mb-6">
             <button
               type="button"
               onClick={() => setShowDropdown(!showDropdown)}
-              className="w-full h-14 px-5 flex items-center justify-between bg-gray-50 border border-gray-200 rounded-2xl hover:border-green-400 transition-all"
+              className="w-full h-12 px-4 flex items-center justify-between bg-bg-primary border border-primary/10 rounded-xl hover:border-primary transition-all group"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#e6f4ec" }}>
-                  <SelectedIcon className="w-4 h-4" style={{ color: "#1a6b3a" }} />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary transition-colors">
+                  <SelectedIcon className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
                 </div>
-                <span className="font-semibold text-gray-600 text-sm">Login Options</span>
+
+                <span className="font-semibold text-gray-700">
+                  Login Options
+                </span>
               </div>
-              <ChevronDown className={`w-5 h-5 text-gray-400 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
+
+              <ChevronDown
+                className={`w-5 h-5 text-gray-400 transition-transform ${
+                  showDropdown ? "rotate-180" : ""
+                }`}
+              />
             </button>
 
+            {/* DROPDOWN */}
             <AnimatePresence>
               {showDropdown && (
                 <motion.div
-                  initial={{ opacity: 0, y: 4 }}
+                  initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                  exit={{ opacity: 0, y: 5 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden"
                 >
-                  {ROLES.map(({ key, label, icon: Icon }) => (
-                    <button
-                      key={key}
-                      onClick={() => handleRoleSelect(key)}
-                      className={`w-full px-5 py-3.5 flex items-center gap-3 text-sm transition-colors text-left border-b border-gray-50 last:border-0 ${
-                        role === key ? "font-bold" : "text-gray-600 hover:bg-gray-50"
-                      }`}
-                      style={role === key ? { backgroundColor: "#f0faf4", color: "#1a6b3a" } : {}}
-                    >
-                      <div
-                        className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: role === key ? "#d4ede0" : "#f3f4f6" }}
-                      >
-                        <Icon className="w-3.5 h-3.5" style={{ color: role === key ? "#1a6b3a" : "#9ca3af" }} />
-                      </div>
-                      {label}
-                    </button>
-                  ))}
+                  {/* ADMIN */}
+                  <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-bg-primary/50 border-b border-bg-primary">
+                    Admin
+                  </div>
+
+                  <button
+                    onClick={() => handleRoleSelect("Admin")}
+                    className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors flex items-center gap-3 font-medium text-gray-600 hover:text-primary-forest border-b border-bg-primary"
+                  >
+                    Admin Portal
+                  </button>
+
+                  {/* DOCTOR */}
+                  <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-bg-primary/50 border-b border-bg-primary">
+                    Doctor
+                  </div>
+
+                  <button
+                    onClick={() => handleRoleSelect("Doctor")}
+                    className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors flex items-center gap-3 font-medium text-gray-600 hover:text-primary-forest border-b border-bg-primary"
+                  >
+                    Doctor Portal
+                  </button>
+
+                  {/* LAB ASSISTANT */}
+                  <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-bg-primary/50 border-b border-bg-primary">
+                    Lab Assistant
+                  </div>
+
+                  <button
+                    onClick={() => handleRoleSelect("Lab Assistant")}
+                    className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors flex items-center gap-3 font-medium text-gray-600 hover:text-primary-forest border-b border-bg-primary"
+                  >
+                    Lab Assistant Portal
+                  </button>
+
+                  {/* APPOINTMENT */}
+                  <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-bg-primary/50 border-b border-bg-primary">
+                    Appointment
+                  </div>
+
+                  <button
+                    onClick={() => handleRoleSelect("Appointment")}
+                    className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors flex items-center gap-3 font-medium text-gray-600 hover:text-primary-forest border-b border-bg-primary"
+                  >
+                    Appointment Portal
+                  </button>
+
+                  {/* DISPENSORY / CLINICIANS */}
+                  <div className="px-4 py-2 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-bg-primary/50 border-b border-bg-primary">
+                    Dispensory / Clinicians
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      handleRoleSelect("Dispensory / Clinicians")
+                    }
+                    className="w-full px-4 py-3 text-left hover:bg-primary/5 transition-colors flex items-center gap-3 font-medium text-gray-600 hover:text-primary-forest"
+                  >
+                    Dispensory Portal
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* Selected portal label */}
-          <p className="text-sm text-gray-500 mb-6">
+          {/* SELECTED ROLE */}
+          <p className="text-sm text-gray-500 mb-8">
             Selected Portal:{" "}
-            <strong className="font-bold" style={{ color: "#1a6b3a" }}>{role}</strong>
+            <strong className="text-primary-dark font-bold">
+              {role}
+            </strong>
           </p>
 
           {/* FORM */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* ERROR */}
             {error && (
               <motion.div
-                initial={{ opacity: 0, x: -8 }}
+                initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="p-3.5 rounded-xl bg-red-50 border border-red-100 flex items-center gap-3 text-red-600 text-sm"
+                className="p-4 rounded-xl bg-red-50 border border-red-100 flex items-center gap-3 text-red-600 text-sm"
               >
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 {error}
               </motion.div>
             )}
 
             {/* USERNAME */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700 block">Username / ID</label>
-              <div className="relative">
-                <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <label className="text-sm font-bold text-primary-dark ml-1">
+                Username / ID
+              </label>
+
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+
                 <input
                   type="text"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your username or ID"
-                  className="w-full h-14 pl-12 pr-4 bg-white border border-gray-200 rounded-2xl text-sm text-gray-900 outline-none transition-all focus:border-green-400 focus:ring-2 focus:ring-green-100"
+                  placeholder="Enter your username"
+                  className="w-full h-14 pl-12 pr-4 bg-bg-primary border border-primary/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all font-sans text-gray-900"
                 />
               </div>
             </div>
 
             {/* PASSWORD */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700 block">Security Key</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <label className="text-sm font-bold text-primary-dark ml-1">
+                Security Key
+              </label>
+
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+
                 <input
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full h-14 pl-12 pr-20 bg-white border border-gray-200 rounded-2xl text-sm text-gray-900 outline-none transition-all focus:border-green-400 focus:ring-2 focus:ring-green-100"
+                  className="w-full h-14 pl-12 pr-12 bg-bg-primary border border-primary/10 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all font-sans text-gray-900"
                 />
+
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-sm font-semibold text-gray-400 hover:text-gray-700 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-primary hover:text-primary-forest focus:outline-none"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
             </div>
 
             {/* LOGIN BUTTON */}
-            <button
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-14 rounded-2xl font-bold text-base text-white flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-60 mt-2"
-              style={{ background: "linear-gradient(135deg, #1a6b3a 0%, #1a5c32 100%)" }}
+              className="w-full h-14 text-lg font-bold shadow-xl shadow-primary-dark/20 rounded-2xl"
             >
               {isSubmitting ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
+                <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
-                <>
-                  <Lock className="w-4 h-4" />
-                  Login
-                </>
+                "Login"
               )}
-            </button>
+            </Button>
           </form>
         </div>
 
-        {/* CARD FOOTER */}
-        <div className="mx-6 mb-6 px-5 py-4 rounded-2xl flex items-center gap-4" style={{ backgroundColor: "#f5faf7" }}>
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#e0f0e8" }}>
-            <ShieldCheck className="w-4 h-4" style={{ color: "#1a6b3a" }} />
-          </div>
-          <p className="text-xs text-gray-500 leading-relaxed">
+        {/* FOOTER */}
+        <div className="p-8 bg-bg-primary border-t border-primary/10 flex flex-col items-center gap-4">
+          <p className="text-sm text-gray-600 font-medium">
             Staff access only. For new accounts, please{" "}
-            <span className="font-bold cursor-pointer" style={{ color: "#1a6b3a" }}>Contact Admin</span>
+            <span className="text-primary-dark font-bold hover:underline cursor-pointer">
+              Contact Admin
+            </span>
           </p>
+
+          {/* DEMO ACCESS */}
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] uppercase font-bold text-gray-400 tracking-[0.25em]">
+              Demo Access
+            </p>
+
+            <div className="flex gap-4 flex-wrap justify-center">
+              <code className="text-[10px] text-primary font-bold bg-bg-secondary px-2 py-1 rounded-md border border-primary/10">
+                {demoCreds.email}
+              </code>
+
+              <code className="text-[10px] text-primary font-bold bg-bg-secondary px-2 py-1 rounded-md border border-primary/10">
+                {demoCreds.password}
+              </code>
+            </div>
+          </div>
         </div>
       </motion.div>
 
-      {/* DEMO ACCESS */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="relative z-10 mt-6 flex flex-col items-center gap-2"
-      >
-        <p className="text-[10px] uppercase font-bold text-gray-400 tracking-[0.25em]">Demo Access</p>
-        <div className="flex gap-3 flex-wrap justify-center">
-          <code className="text-[11px] font-bold px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-500 shadow-sm">
-            {demoCreds.email}
-          </code>
-          <code className="text-[11px] font-bold px-3 py-1.5 rounded-xl bg-white border border-gray-200 text-gray-500 shadow-sm">
-            {demoCreds.password}
-          </code>
-        </div>
-      </motion.div>
-
+      {/* COPYRIGHT */}
+      <div className="mt-8 text-gray-400 text-[10px] font-black uppercase tracking-[0.2em]">
+        Copyright © 2026 Medico Health Systems | All Rights Reserved
+      </div>
     </div>
   );
 }

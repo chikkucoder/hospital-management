@@ -18,17 +18,17 @@ import {
   History,
   Microscope,
   Upload,
-  Calendar,
-  Receipt,
 } from "lucide-react";
 
 import { cn } from "../../lib/utils";
 import { Role } from "../../types";
 
-const logoBireena = "/src/assets/logo.png";
+const logoBireena = "/src/assets/logobireena.jpeg";
 
-export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
+export default function Sidebar({ user, handleLogout }) {
+
   const location = useLocation();
+
   const [openDropdowns, setOpenDropdowns] = useState({});
 
   const toggleDropdown = (name) => {
@@ -38,231 +38,405 @@ export default function Sidebar({ user, isSidebarOpen, handleLogout }) {
     }));
   };
 
+  // =====================================================
+  // ROLE BASED MENU
+  // =====================================================
+
   const getMenuItems = () => {
+
     if (!user) return [];
 
     switch (user.role) {
+
+      // =====================================================
+      // DOCTOR
+      // =====================================================
+
       case Role.DOCTOR:
         return [
-          { name: "Doctor Dashboard", path: "/doctor/dashboard", icon: LayoutDashboard },
           {
-            name: "All Patients", path: "/doctor/patients", icon: Users},
-          {
-            name: "Patient", path: "/doctor/patients", icon: Users,
-            hasSubmenu: true,
-            submenu: [
-              { name: "Add Prescription", path: "/doctor/prescriptions", icon: Plus },
-              { name: "Reports", path: "/doctor/reports", icon: FileText },
-              { name: "Patient History", path: "/doctor/history", icon: History },
-            ],
+            name: "Doctor Dashboard",
+            path: "/doctor/dashboard",
+            icon: LayoutDashboard,
           },
 
+          {
+            name: "All Patients",
+            path: "/doctor/patients",
+            icon: Users,
+          },
+
+          {
+            name: "Add Prescription",
+            path: "/doctor/prescriptions",
+            icon: Plus,
+          },
+
+          {
+            name: "Reports",
+            path: "/doctor/reports",
+            icon: FileText,
+          },
+
+          {
+            name: "Patient History",
+            path: "/doctor/history",
+            icon: History,
+          },
         ];
+
+      // =====================================================
+      // LAB
+      // =====================================================
 
       case Role.LAB:
         return [
-          { name: "Lab Dashboard", path: "/lab/dashboard", icon: LayoutDashboard },
-          { name: "All Reports", path: "/lab/reports", icon: Microscope },
-          { name: "Upload Reports", path: "/lab/upload", icon: Upload },
+          {
+            name: "Lab Dashboard",
+            path: "/lab/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "All Reports",
+            path: "/lab/reports",
+            icon: Microscope,
+          },
+
+          {
+            name: "Upload Reports",
+            path: "/lab/upload",
+            icon: Upload,
+          },
+
+          {
+            name: "Pending Samples",
+            path: "/lab/pending",
+            icon: ClipboardList,
+          },
         ];
+
+      // =====================================================
+      // APPOINTMENT
+      // =====================================================
 
       case Role.APPOINTMENT:
         return [
-          { name: "Appointment Dashboard", path: "/appointment/dashboard", icon: LayoutDashboard },
-          { name: "Add Appointment", path: "/appointment/add", icon: Plus },
+          {
+            name: "Appointment Dashboard",
+            path: "/appointment/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "Add Appointment",
+            path: "/appointment/add",
+            icon: Plus,
+          },
+
           {
             name: "Patients",
             icon: Users,
             hasSubmenu: true,
+
             submenu: [
-              { name: "All Patients", path: "/appointment/patients" },
-              { name: "Add Patient", path: "/appointment/add-patient" },
+              {
+                name: "All Patients",
+                path: "/appointment/patients",
+              },
+
+              {
+                name: "Add Patient",
+                path: "/appointment/add-patient",
+              },
             ],
           },
-          { name: "Billing", path: "/appointment/billing", icon: ReceiptIndianRupee },
-          { name: "Appointment History", path: "/appointment/history", icon: History },
+
+          {
+            name: "Billing",
+            path: "/appointment/billing",
+            icon: ReceiptIndianRupee,
+          },
+
+          {
+            name: "Appointment History",
+            path: "/appointment/history",
+            icon: History,
+          },
         ];
+
+      // =====================================================
+      // CLINIC
+      // =====================================================
 
       case Role.CLINIC:
         return [
-          { name: "Clinic Dashboard", path: "/clinic/dashboard", icon: LayoutDashboard },
-          { name: "Add Medicine", path: "/clinic/Patients", icon: Pill },
-          { name: "Billing", path: "/clinic/billing", icon: Receipt },
-          { name: "History", path: "/clinic/history", icon: BarChart3 },
+          {
+            name: "Clinic Dashboard",
+            path: "/clinic/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "New Patient",
+            path: "/clinic/new-patient",
+            icon: Plus,
+          },
+
+          {
+            name: "Patient History",
+            path: "/clinic/history",
+            icon: History,
+          },
+
+          {
+            name: "Billing",
+            path: "/clinic/billing",
+            icon: ReceiptIndianRupee,
+          },
+
+          {
+            name: "Medicine Inventory",
+            path: "/clinic/inventory",
+            icon: Pill,
+          },
+
+          {
+            name: "Dispense Medicine",
+            path: "/clinic/dispense",
+            icon: ClipboardList,
+          },
         ];
+
+      // =====================================================
+      // ADMIN
+      // =====================================================
 
       case Role.ADMIN:
       default:
         return [
-          { name: "Admin Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
-          { name: "All Patients", path: "/patients", icon: Users },
-          { name: "Doctor Management", path: "/admin/doctors", icon: Stethoscope },
-          { name: "Appointments", path: "/appointments", icon: ClipboardList },
-          { name: "Add Lab Test", path: "/lab/add-test", icon: Plus },
-          { name: "Test Catalog", path: "/lab/tests", icon: Plus },
+          {
+            name: "Admin Dashboard",
+            path: "/admin/dashboard",
+            icon: LayoutDashboard,
+          },
+
+          {
+            name: "All Patients",
+            path: "/patients",
+            icon: Users,
+          },
+
+          {
+            name: "Doctor Management",
+            path: "/admin/doctors",
+            icon: Stethoscope,
+          },
+
+          {
+            name: "Appointments",
+            path: "/appointments",
+            icon: ClipboardList,
+          },
+
           {
             name: "Dispensary",
             icon: Pill,
             hasSubmenu: true,
+
             submenu: [
-              { name: "Medicine Inventory", path: "/clinic/dashboard" },
-              { name: "Add Medicine", path: "/clinic/add-medicine" },
+              {
+                name: "Medicine Inventory",
+                path: "/clinic/inventory",
+              },
+
+              {
+                name: "Add Medicine",
+                path: "/clinic/add-medicine",
+              },
             ],
           },
-          { name: "User Management", path: "/admin/users", icon: ShieldCheck },
-          { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
-          { name: "Settings", path: "/settings", icon: Settings },
+
+          {
+            name: "User Management",
+            path: "/admin/users",
+            icon: ShieldCheck,
+          },
+
+          {
+            name: "Analytics",
+            path: "/admin/analytics",
+            icon: BarChart3,
+          },
+
+          {
+            name: "Settings",
+            path: "/settings",
+            icon: Settings,
+          },
         ];
     }
   };
 
   const menuItems = getMenuItems();
 
-  // Split menu into sections — first item is dashboard, rest is "manage"
-  const dashboardItem = menuItems[0];
-  const manageItems = menuItems.slice(1);
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
-    <aside
-      className={cn(
-        "w-64 h-screen flex flex-col flex-shrink-0 transition-all duration-300 z-50",
-        "fixed md:relative",
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      )}
-      style={{ backgroundColor: "#1a3c2e" }}
-    >
+    <aside className="w-72 h-screen bg-white border-r border-gray-100 flex flex-col shadow-sm">
+
+      {/* ===================================================== */}
       {/* LOGO */}
+      {/* ===================================================== */}
+
       <div className="h-20 flex items-center gap-3 px-6 border-b border-gray-100">
 
         <img
           src={logoBireena}
           alt="Logo"
-          className="
-      h-14
-      object-contain
-      rounded-xl
-      brightness-0
-      invert
-    "
+          className="h-12 object-contain rounded-xl"
         />
 
+        
+
       </div>
 
+      {/* ===================================================== */}
       {/* MENU */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-        {/* Dashboard item */}
-        {dashboardItem && (
-          <Link
-            to={dashboardItem.path}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 transition-all",
-              location.pathname === dashboardItem.path
-                ? "bg-white/15 text-white"
-                : "text-white/60 hover:bg-white/8 hover:text-white/90"
-            )}
-          >
-            <dashboardItem.icon
-              className={cn(
-                "w-5 h-5",
-                location.pathname === dashboardItem.path ? "text-white" : "text-white/50"
-              )}
-            />
-            <span className="font-semibold text-sm">{dashboardItem.name}</span>
-          </Link>
-        )}
+      {/* ===================================================== */}
 
-        {/* MANAGE section */}
-        {manageItems.length > 0 && (
-          <div className="mt-4 mb-2">
-            <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.2em] px-3 mb-2">
-              Manage
-            </p>
-            <div className="space-y-0.5">
-              {manageItems.map((item) =>
-                item.hasSubmenu ? (
-                  <div key={item.name}>
-                    <button
-                      onClick={() => toggleDropdown(item.name)}
-                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-white/60 hover:bg-white/8 hover:text-white/90 transition-all"
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon className="w-5 h-5 text-white/50" />
-                        <span className="font-semibold text-sm">{item.name}</span>
-                      </div>
-                      <ChevronDown
-                        className={cn(
-                          "w-4 h-4 text-white/30 transition-transform",
-                          openDropdowns[item.name] && "rotate-180"
-                        )}
-                      />
-                    </button>
-                    {openDropdowns[item.name] && (
-                      <div className="ml-8 mt-0.5 space-y-0.5">
-                        {item.submenu.map((sub) => (
-                          <Link
-                            key={sub.path}
-                            to={sub.path}
-                            className={cn(
-                              "flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all",
-                              location.pathname === sub.path
-                                ? "bg-white/15 text-white font-bold"
-                                : "text-white/50 hover:bg-white/8 hover:text-white/80"
-                            )}
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
-                            {sub.name}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
-                      location.pathname === item.path
-                        ? "bg-white/15 text-white"
-                        : "text-white/60 hover:bg-white/8 hover:text-white/90"
-                    )}
+      <nav className="flex-1 p-4 overflow-y-auto">
+
+        <div className="mb-4 px-3 text-xs uppercase tracking-widest font-black text-gray-400">
+          Main Menu
+        </div>
+
+        <div className="space-y-2">
+
+          {menuItems.map((item) => (
+
+            <div key={item.path || item.name}>
+
+              {/* ===================================================== */}
+              {/* SUBMENU */}
+              {/* ===================================================== */}
+
+              {item.hasSubmenu ? (
+
+                <>
+                  <button
+                    onClick={() => toggleDropdown(item.name)}
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-2xl hover:bg-gray-50 transition-all"
                   >
-                    <item.icon
+
+                    <div className="flex items-center gap-3">
+
+                      <item.icon className="w-5 h-5 text-gray-600" />
+
+                      <span className="font-semibold text-gray-700">
+                        {item.name}
+                      </span>
+
+                    </div>
+
+                    <ChevronDown
                       className={cn(
-                        "w-5 h-5",
-                        location.pathname === item.path ? "text-white" : "text-white/50"
+                        "w-4 h-4 transition-transform",
+                        openDropdowns[item.name] && "rotate-180"
                       )}
                     />
-                    <span className="font-semibold text-sm">{item.name}</span>
-                  </Link>
-                )
+
+                  </button>
+
+                  {openDropdowns[item.name] && (
+
+                    <div className="ml-6 mt-2 space-y-1">
+
+                      {item.submenu.map((subitem) => (
+
+                        <Link
+                          key={subitem.path}
+                          to={subitem.path}
+                          className={cn(
+                            "flex items-center gap-3 px-4 py-2 rounded-xl text-sm transition-all",
+
+                            location.pathname === subitem.path
+                              ? "bg-emerald-50 text-emerald-700 font-bold"
+                              : "text-gray-600 hover:bg-gray-50"
+                          )}
+                        >
+
+                          <div className="w-2 h-2 rounded-full bg-gray-400" />
+
+                          {subitem.name}
+
+                        </Link>
+                      ))}
+
+                    </div>
+                  )}
+                </>
+              ) : (
+
+                /* ===================================================== */
+                /* NORMAL MENU */
+                /* ===================================================== */
+
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center gap-4 px-4 py-3 rounded-2xl transition-all",
+
+                    location.pathname === item.path
+                      ? "bg-emerald-50 text-emerald-700 font-bold"
+                      : "text-gray-600 hover:bg-gray-50"
+                  )}
+                >
+
+                  <item.icon
+                    className={cn(
+                      "w-5 h-5",
+
+                      location.pathname === item.path
+                        ? "text-emerald-600"
+                        : "text-gray-500"
+                    )}
+                  />
+
+                  <span className="font-semibold">
+                    {item.name}
+                  </span>
+
+                </Link>
               )}
             </div>
-          </div>
-        )}
+          ))}
+        </div>
       </nav>
 
-      {/* FOOTER — Log Out */}
-      <div className="p-3 border-t border-white/10">
+      {/* ===================================================== */}
+      {/* FOOTER */}
+      {/* ===================================================== */}
+
+      <div className="p-4 border-t border-gray-100">
+
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all"
+          className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-red-500 hover:bg-red-50 transition-all"
         >
+
           <LogOut className="w-5 h-5" />
-          <span className="font-bold text-sm">Log Out</span>
+
+          <span className="font-bold">
+            Log Out
+          </span>
+
         </button>
+
       </div>
 
-      {/* Decorative leaf/nature bottom */}
-      <div
-        className="absolute bottom-16 left-0 right-0 h-32 pointer-events-none overflow-hidden opacity-20"
-        aria-hidden="true"
-      >
-        <svg viewBox="0 0 256 128" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-          <path d="M0 80 Q40 20 80 60 Q120 100 160 40 Q200 -20 256 50 L256 128 L0 128Z" fill="#4ade80" opacity="0.4" />
-          <path d="M0 100 Q50 50 100 80 Q150 110 200 60 Q230 30 256 70 L256 128 L0 128Z" fill="#22c55e" opacity="0.5" />
-        </svg>
-      </div>
     </aside>
   );
 }

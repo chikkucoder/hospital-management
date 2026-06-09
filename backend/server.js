@@ -1,55 +1,66 @@
 import "dotenv/config";
-import http from "http";
-import app from "./app.js";
-import { connectDB } from "./config/database.js";
-import { config } from "./config/env.js";
-import { initializeSockets } from "./sockets/index.js";
-import { logger } from "./utils/logger.js";
+import express from "express";
+import cors from "cors";
+import morgan from "morgan";
+import { connectDB } from "./config/db.js";
 
-const server = http.createServer(app);
+import authRoutes from "./routes/authRoutes.js";
+import patientRoutes from "./routes/patientRoutes.js";
+import appointmentRoutes from "./routes/appointmentRoutes.js";
+import serviceRoutes from "./routes/serviceRoutes.js";
+import billRoutes from "./routes/billRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
-// Initialize Socket.io
-const io = initializeSockets(server);
-global.io = io; // Make io globally available
+const PORT = process.env.PORT || 5000;
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/aarogya_billing";
 
-// Connect to MongoDB
-connectDB(config.mongoUri)
-  .then(() => {
-    server.listen(config.port, () => {
-      logger.info(`🚀 Server running on http://localhost:${config.port}`);
-      logger.info(`📦 Environment: ${config.nodeEnv}`);
-      logger.info(`🗄️  Database: MongoDB connected`);
-    });
-  })
+const ORIGINS = (process.env.CORS_ORIGIN ||
+  "http://localhost:5173,http://localhost:8080")
+  .split(",")
+  .map((s) => s.trim());
+
+const app = express();
+
+// --- middleware ---
+app.use(cors({ origin: ORIGINS, credentials: true }));
+app.use(express.json({ limit: "1mb" }));
+app.use(morgan("dev"));
+
+// debug logger (optional)
+app.use((req, _res, next) => {
+  console.log("→", req.method, req.url);
+  next();
+});
+
+// --- health ---
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, time: new Date().toISOString() })
+);
+
+// --- routes (no auth anywhere) ---
+app.use("/api/auth", authRoutes);
+app.use("/api/patients", patientRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/bills", billRoutes);
+app.use("/api/reports", reportRoutes); // removed requireAuth
+
+// --- error handler ---
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ error: err.message || "Internal error" });
+});
+
+// --- start ---
+connectDB(MONGO_URI)
+  .then(() =>
+    app.listen(PORT, () =>
+      console.log(`🚀 API on http://localhost:${PORT}`)
+    )
+  )
   .catch((err) => {
-    logger.error("Database connection failed:", err);
+    console.error("DB connect failed:", err);
     process.exit(1);
   });
-
-// Graceful Shutdown
-process.on("SIGTERM", () => {
-  logger.info("SIGTERM received, shutting down gracefully");
-  server.close(() => {
-    logger.info("Server closed");
-    process.exit(0);
-  });
-});
-
-process.on("SIGINT", () => {
-  logger.info("SIGINT received, shutting down gracefully");
-  server.close(() => {
-    logger.info("Server closed");
-    process.exit(0);
-  });
-});
-
-process.on("uncaughtException", (err) => {
-  logger.error("Uncaught Exception:", err);
-  process.exit(1);
-});
-
-process.on("unhandledRejection", (reason, promise) => {
-  logger.error("Unhandled Rejection at:", promise, "reason:", reason);
-});
-
 
