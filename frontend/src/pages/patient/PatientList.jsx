@@ -155,10 +155,6 @@ export default function PatientList() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState("table"); // table | grid
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const patientsPerPage = 10;
 
   useEffect(() => {
     setTimeout(() => {
@@ -444,17 +440,6 @@ export default function PatientList() {
           </>
         )}
       </div>
-
-      {/* Modal */}
-      <AnimatePresence>
-        {isAddModalOpen && (
-          <AddPatientModal
-            isOpen={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
-            onAdd={fetchPatients}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
